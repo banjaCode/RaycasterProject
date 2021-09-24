@@ -120,7 +120,9 @@ class Example : public olc::PixelGameEngine
 		else if (ra == 0 || ra == PI) //looking straight up or down
 		{
 			rx = px; ry = py; 
-			dof = 8; 
+			dof = 8;
+			int f = 00;
+			int x;
 		} 
 
 		while (dof < 8)
