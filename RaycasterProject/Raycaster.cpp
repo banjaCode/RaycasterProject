@@ -178,7 +178,7 @@ public:
 		Drawplayer();
 		DrawRays2D();
 		buttons();
-		DrawLinePro(200, 200, 400, 400, 20, olc::BLUE);
+		//DrawLinePro(200, 200, 400, 400, 20, olc::BLUE);
 		return true;
 	}
 };
