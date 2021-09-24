@@ -7,17 +7,10 @@
 #define PI2 PI/2
 #define PI3 (3*PI/2)
 
-// was here
-
 // Override base class with your custom functionality
 class Example : public olc::PixelGameEngine
 {
 	float px, py, pdx, pdy, pa = PI2;
-
-	void DrawLinePro()
-	{
-
-	}
 
 	void Drawplayer()
 	{
@@ -72,81 +65,74 @@ class Example : public olc::PixelGameEngine
 	{
 		int r, mx, my, mp, dof; float  rx, ry, ra, xo, yo;
 		ra = pa;
-		for (r = 0; r < 1; r++) {
+		
+		//-- check horizontal lines--
+		dof = 0;
+		float aTan = -1 / tan(ra);
+		if (ra > PI) //looking up
+		{
+			ry = (((int)py >> 6) << 6) - 0.0001; 
+			rx = (py - ry) * aTan + px; yo = -64; 
+			xo = -yo * aTan; 
+		} 
 
+		else if (ra < PI) //looking down
+		{
+			ry = (((int)py >> 6) << 6) + 64;
+			rx = (py - ry) * aTan + px; yo = 64; 
+			xo = -yo * aTan; 
+		}  
 
-			//-- check horizontal lines--
-			dof = 0;
-			float aTan = -1 / tan(ra);
-			if (ra > PI) //looking up
-			{
-				ry = (((int)py >> 6) << 6) - 0.0001;
-				rx = (py - ry) * aTan + px; yo = -64;
-				xo = -yo * aTan;
-			}
+		else if(ra == 0 || ra == PI) //looking straight left or right
+		{
+			rx = px; ry = py; 
+			dof = 8; 
+		} 
 
-			else if (ra < PI) //looking down
-			{
-				ry = (((int)py >> 6) << 6) + 64;
-				rx = (py - ry) * aTan + px; yo = 64;
-				xo = -yo * aTan;
-			}
-
-			else if (ra == 0 || ra == PI)
-			{
-				rx = px; ry = py;
-				dof = 8;
-			} //looking straight left or right
-
-
-
-			while (dof < 8)
-			{
+		while (dof < 8)
+		{
 				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapX + mx;
 				if (mp <= (mapX * mapY) && map[mp] == 1) { break; }
 				else { rx += xo; ry += yo; dof += 1; }
-			}
-			if (dof < 8) {
+		} 
+		if (dof < 8) {
 
-			}
-
-			DrawLine(px + 8, py + 8, rx, ry, olc::DARK_RED);
-
-			//-- check horizontal lines--
-			dof = 0;
-			float nTan = -tan(ra);
-
-			if (ra > PI2 && ra < PI3) //looking left
-			{
-				rx = (((int)px >> 6) << 6) - 0.0001;
-				ry = (px - rx) * nTan + py;
-				xo = -64; yo = -xo * nTan;
-			}
-
-			else if (ra < PI2 || ra > PI3) //looking right
-			{
-				rx = (((int)px >> 6) << 6) + 64;
-				ry = (px - rx) * nTan + py;
-				xo = 64; yo = -xo * nTan;
-			}
-
-			else if (ra == 0 || ra == PI) //looking straight up or down
-			{
-				rx = px; ry = py;
-				dof = 8;
-			}
-
-			while (dof < 8)
-			{
-				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapX + mx;
-				if (mp > 0 && mp <= (mapX * mapY) && map[mp] == 1) { dof = 8; }
-				else { rx += xo; ry += yo; dof += 1; }
-			}
-
-			DrawLine(px + 8, py + 8, rx, ry, olc::DARK_RED);
 		}
-		
-		
+		DrawLine(px + 8, py + 8, rx, ry, olc::DARK_RED);
+		//-- check horizontal lines--
+		dof = 0;
+		float nTan = -tan(ra);
+
+		if (ra > PI2 && ra < PI3) //looking left
+		{ 
+			rx = (((int)px >> 6) << 6) - 0.0001; 
+			ry = (px - rx) * nTan + py; 
+			xo = -64; yo = -xo * nTan; 
+		} 
+
+		else if (ra < PI2 || ra > PI3) //looking right
+		{
+			rx = (((int)px >> 6) << 6) + 64;     
+			ry = (px - rx) * nTan + py; 
+			xo = 64; yo = -xo * nTan; 
+		} 
+
+		else if (ra == 0 || ra == PI) //looking straight up or down
+		{
+			rx = px; ry = py; 
+			dof = 8; 
+		} 
+
+		while (dof < 8)
+		{
+			mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapX + mx;
+			if (mp > 0 && mp <= (mapX * mapY) && map[mp] == 1) { dof = 8; }
+			else { rx += xo; ry += yo; dof += 1; }
+		}
+
+
+
+		  DrawLine(px + 8, py + 8, rx, ry, olc::DARK_RED);
 		
 	}
 	/*
