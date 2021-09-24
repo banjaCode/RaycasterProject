@@ -149,14 +149,28 @@ class Example : public olc::PixelGameEngine
 		
 		
 	}
-	void DrawLinePro(int x, int y, int x2, int y2, int widht, olc::Pixel  color) 
+	/*
+	void DrawLinePro(int x, int y, int x2, int y2, int width, olc::Pixel color) 
 	{
-		int k = (y2 - y) / (x2 - x);
-		int dy = x * k;
+		int dy1;
+		int dx1 = 1;
+		int xt = 1;
+		int k1;
+		if (!(x == x2))
+		{
+			k1 = (y2 - y) / (x2 - x);
+		}
+		else (k1 = 0);
+		if (k1 == 0 && !(x == x2)) { k1 = 1; xt = 0; }
 
-			DrawLine(x + 1, y, x2 + 1, y2, color);
-		
+		for (int i = 0; i < width; i++) 
+		{
+			dy1 = k1 * i;
+			dx1 = xt * i;
+			DrawLine(x + dx1, y - dy1, x2 + dx1, y2 - dy1, color);
+		}
 	}
+	*/
 
 public:
 	Example()
@@ -178,7 +192,7 @@ public:
 		Drawplayer();
 		DrawRays2D();
 		buttons();
-		DrawLinePro(300,300, 900, 900, 20, olc::BLUE);
+		DrawLinePro(200, 200, 400, 400, 20, olc::BLUE);
 		return true;
 	}
 };
