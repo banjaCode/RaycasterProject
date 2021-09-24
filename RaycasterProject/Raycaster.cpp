@@ -14,11 +14,6 @@ class Example : public olc::PixelGameEngine
 {
 	float px, py, pdx, pdy, pa = PI2;
 
-	void DrawLinePro()
-	{
-
-	}
-
 	void Drawplayer()
 	{
 		FillRect(px, py, 16, 16, olc::YELLOW);
@@ -192,7 +187,7 @@ public:
 		Drawplayer();
 		DrawRays2D();
 		buttons();
-		DrawLinePro(200, 200, 400, 400, 20, olc::BLUE);
+		//DrawLinePro(200, 200, 400, 400, 20, olc::BLUE);
 		return true;
 	}
 };
