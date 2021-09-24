@@ -123,6 +123,7 @@ class Example : public olc::PixelGameEngine
 			dof = 8;
 			int f = 00;
 			int x;
+			//hejsan svejsan
 		} 
 
 		while (dof < 8)
