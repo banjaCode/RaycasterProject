@@ -104,7 +104,7 @@ class Example : public olc::PixelGameEngine
 
 			//-- Draw 3D walls --
 			float ca = pa - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);
-			float lineH = (mapS * 320) / disT; if (lineH > 640) { lineH = 640; }   //Line Height
+			float lineH = (mapS * 320) / disT; if (lineH > 660) { lineH = 660; }   //Line Height
 			float lineO = 160 - lineH / 2;                                        //Line Offset
 			FillRect(r*8+512, lineO, 8, lineH, olc::Pixel(233, 22, 100, rand() % 100));
 
