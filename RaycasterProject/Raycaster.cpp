@@ -7,6 +7,7 @@
 #define PI2 PI/2
 #define PI3 (3*PI/2)
 
+using namespace std;
 // Override base class with your custom functionality
 class Example : public olc::PixelGameEngine
 {
@@ -15,7 +16,7 @@ class Example : public olc::PixelGameEngine
 	void Drawplayer()
 	{
 		FillRect(px, py, 16, 16, olc::YELLOW);
-		DrawLine(px + 8, py + 8, px + 8 + pdx * 20, py + 8 + pdy * 20, olc::DARK_GREEN);
+		DrawLinePro(px + 8, py + 8, px + 8 + pdx * 20, py + 8 + pdy * 20, 5, olc::DARK_GREEN);
 	}
 
 	const static int mapX = 8, mapY = 8, mapS = 64;
@@ -98,7 +99,7 @@ class Example : public olc::PixelGameEngine
 		if (dof < 8) {
 
 		}
-		DrawLine(px + 8, py + 8, rx, ry, olc::DARK_RED);
+		DrawLinePro(px + 8, py + 8, rx, ry, 10, olc::DARK_BLUE);
 		//-- check horizontal lines--
 		dof = 0;
 		float nTan = -tan(ra);
@@ -129,34 +130,25 @@ class Example : public olc::PixelGameEngine
 			if (mp > 0 && mp <= (mapX * mapY) && map[mp] == 1) { dof = 8; }
 			else { rx += xo; ry += yo; dof += 1; }
 		}
-
-
-
-		  DrawLine(px + 8, py + 8, rx, ry, olc::DARK_RED);
-		
+		DrawLinePro(px + 8, py + 8, rx, ry, 5, olc::DARK_RED);
 	}
-	/*
-	void DrawLinePro(int x, int y, int x2, int y2, int width, olc::Pixel color) 
+	float a;
+	float f;
+	void DrawLinePro(double lineX, double lineY, double lineX2, double lineY2, int width, olc::Pixel color) 
 	{
-		int dy1;
-		int dx1 = 1;
-		int xt = 1;
-		int k1;
-		if (!(x == x2))
-		{
-			k1 = (y2 - y) / (x2 - x);
-		}
-		else (k1 = 0);
-		if (k1 == 0 && !(x == x2)) { k1 = 1; xt = 0; }
+		int inX, inY, inX2, inY2, wLineX,wLineY, wLineX2, wLineY2;
+		double dy, dx;
+		double lineK = (lineY2 - lineY) / (lineX2 - lineX);
+		double lineA = atan(lineK);
+		dy =  sin(PI2 - lineA); dx = -cos(PI2 - lineA); 
 
-		for (int i = 0; i < width; i++) 
-		{
-			dy1 = k1 * i;
-			dx1 = xt * i;
-			DrawLine(x + dx1, y - dy1, x2 + dx1, y2 - dy1, color);
-		}
+			 for (int i = 0; i < width / 2; i++)
+			 {
+				 DrawLine(lineX + (dx * i), lineY + (dy * i), lineX2 + (dx * i), lineY2 + (dy * i), color);
+				 DrawLine(lineX - (dx * i), lineY - (dy * i), lineX2 - (dx * i), lineY2 - (dy * i), color);
+			 }
 	}
-	*/
+	
 
 public:
 	Example()
@@ -169,16 +161,19 @@ public:
 	{
 		backgroundColor(olc::DARK_GREY);
 		px = 300; py = 300;
+		DrawLinePro(250, 150, 300, 350, 1, olc::BLUE);
+		cout << f;
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		backgroundColor(olc::DARK_GREY);
 		DrawMap2D();
-		Drawplayer();
 		DrawRays2D();
+		Drawplayer();
 		buttons();
-		//DrawLinePro(200, 200, 400, 400, 20, olc::BLUE);
+		DrawLinePro(250, 150, 300, 350, 1, olc::BLUE);
+		DrawLine(300,200,350,400);
 		return true;
 	}
 };
