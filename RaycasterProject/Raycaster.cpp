@@ -9,17 +9,20 @@
 #define DR 0.0174532925
 
 using namespace std;
-// Override base class with your custom functionality
+
 class Example : public olc::PixelGameEngine
 {
+	// player X, player Y, player delta X, player delta y, player angle
 	float px, py, pdx, pdy, pWidth, pa = PI;
 
+	// draws player on 2d map
 	void Drawplayer()
 	{
 		FillRect(px - pWidth / 2, py - pWidth / 2, pWidth, pWidth, olc::YELLOW);
 		DrawLinePro(px, py, px + pdx * 10, py + pdy * 10, 5, olc::YELLOW);
 	}
 
+	// map layout
 	const static int mapX = 8, mapY = 8, mapS = 64;
 	int map[mapS] =
 	{
@@ -33,9 +36,11 @@ class Example : public olc::PixelGameEngine
 		 1,1,1,1,1,1,1,1,
 	};
 
+	//draws 2d map
 	void DrawMap2D()
 	{
 		olc::Pixel color;
+		//x offset, y offset
 		int x, y, xo, yo;
 		for (y = 0; y < mapY; y++)
 		{
@@ -51,20 +56,21 @@ class Example : public olc::PixelGameEngine
 
 	void buttons() { 
 		// vertical and horisontal movement
-		if (GetKey(olc::Key::A).bHeld) { px += cos(pa - PI2) * 2; py += sin(pa - PI2) * 2; }
-		if (GetKey(olc::Key::D).bHeld) { px += cos(pa + PI2) * 2; py += sin(pa + PI2) * 2; }
+		if (GetKey(olc::Key::A).bHeld) { px += cos(pa - PI2); py += sin(pa - PI2); }
+		if (GetKey(olc::Key::D).bHeld) { px += cos(pa + PI2); py += sin(pa + PI2); }
 		if (GetKey(olc::Key::W).bHeld) { px += pdx; py += pdy; }
 		if (GetKey(olc::Key::S).bHeld) { px -= pdx; py -= pdy; }
 		// rotational movement
 		if (GetKey(olc::Key::LEFT).bHeld) { pa -= 0.05; if (pa < 0)         pa += 2 * PI; }
 		if (GetKey(olc::Key::RIGHT).bHeld) { pa += 0.05; if (pa > 2 * PI)   pa -= 2 * PI; }
-		pdx = cos(pa) * 2; pdy = sin(pa) * 2;
+		pdx = cos(pa); pdy = sin(pa); // sets pdx and pdy depending on player angle
 	}
 
 	void DrawRays2D()
 	{
+		// dof = depth off field, changes how far the ray goes
 		int r, mx, my, mp, dof; float  rx, ry, ra, xo, yo, disT;
-		ra = pa - DR * 60; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
+		ra = pa - DR * 30; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		for (r = 0; r < 1024; r++)
 		{
 			//-- check horizontal lines--
@@ -77,15 +83,15 @@ class Example : public olc::PixelGameEngine
 
 			while (dof < 8)
 			{
-				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapX + mx;
-				if (mp > 0 && mp <= (mapX * mapY) && map[mp] == 1) { hx = rx; hy = ry; disH = Dist(px, py, hx, hy, ra); break; }
-				else { rx += xo; ry += yo; dof += 1; }
+				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapX + mx; // bestämmer en rays position i vårt 8 * 8 rutnät
+				if (mp > 0 && mp <= (mapX * mapY) && map[mp] == 1) { hx = rx; hy = ry; disH = Dist(px, py, hx, hy, ra); break; }  // Om platsen är en etta sparar rx och ry och längd på ray
+				else { rx += xo; ry += yo; dof += 1; } // om platsen är noll, skicka vidare rayen till nästa position i rutnätet
 			}
 
 			//-- check vertical lines--
 			dof = 0;
 			float disV = 1000000, vx = px, vy = py;
-			float nTan = -tan(ra);
+			float nTan = -tan(ra);  
 
 			if (ra > PI2 && ra < PI3) { rx = (((int)px >> 6) << 6) - 0.0001; ry = (px - rx) * nTan + py; xo = -64; yo = -xo * nTan; } //looking left
 			else if (ra < PI2 || ra > PI3) { rx = (((int)px >> 6) << 6) + 64; ry = (px - rx) * nTan + py; xo = 64; yo = -xo * nTan; } //looking right
@@ -97,18 +103,19 @@ class Example : public olc::PixelGameEngine
 				if (mp > 0 && mp <= (mapX * mapY) && map[mp] == 1) { vx = rx; vy = ry; disV = Dist(px, py, vx, vy, ra); break; }
 				else { rx += xo; ry += yo; dof += 1; }
 			}
-			// set ray distanse 
+			// set ray distans depending on which is longer
 			if (disV < disH) { rx = vx; ry = vy; disT = disV; }
 			else if (disH < disV) { rx = hx; ry = hy; disT = disH; }
+
 			// DrawLinePro(px, py, rx, ry, 2, olc::DARK_RED);
 
 			//-- Draw 3D walls --
-			float ca = pa - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);
-			float lineH = (mapS * 320) / disT; if (lineH > 700) { lineH = 700; }   //Line Height
+			float ca = pa - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // bestämmer distans till vägg
+			float lineH = (mapS * 320) / disT;  //Line Height
 			float lineO = 160 - lineH / 2;                                        //Line Offset
 			FillRect(r*1, lineO, 1, lineH, olc::Pixel(233, 22, 100, rand() % 100));
 
-			ra += DR / (128 / 15); if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
+			ra += DR / (256 / 15); if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		}
 	}
 
