@@ -27,7 +27,7 @@ class Example : public olc::PixelGameEngine
 		 1,0,1,0,0,0,0,1,
 		 1,0,1,0,0,1,0,1,
 		 1,0,1,0,0,0,0,1,
-		 1,0,0,0,0,0,0,1,
+		 1,0,0,0,0,0,0,0,
 		 1,0,1,1,0,1,0,1,
 		 1,0,0,0,0,0,0,1,
 		 1,1,1,1,1,1,1,1,
@@ -64,8 +64,8 @@ class Example : public olc::PixelGameEngine
 	void DrawRays2D()
 	{
 		int r, mx, my, mp, dof; float  rx, ry, ra, xo, yo, disT;
-		ra = pa - DR * 32; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
-		for (r = 0; r < 64; r++)
+		ra = pa - DR * 60; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
+		for (r = 0; r < 1024; r++)
 		{
 			//-- check horizontal lines--
 			dof = 0;
@@ -97,18 +97,18 @@ class Example : public olc::PixelGameEngine
 				if (mp > 0 && mp <= (mapX * mapY) && map[mp] == 1) { vx = rx; vy = ry; disV = Dist(px, py, vx, vy, ra); break; }
 				else { rx += xo; ry += yo; dof += 1; }
 			}
-			
+			// set ray distanse 
 			if (disV < disH) { rx = vx; ry = vy; disT = disV; }
 			else if (disH < disV) { rx = hx; ry = hy; disT = disH; }
-			DrawLinePro(px, py, rx, ry, 5, olc::DARK_RED);
+			// DrawLinePro(px, py, rx, ry, 2, olc::DARK_RED);
 
 			//-- Draw 3D walls --
 			float ca = pa - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);
-			float lineH = (mapS * 320) / disT; if (lineH > 660) { lineH = 660; }   //Line Height
+			float lineH = (mapS * 320) / disT; if (lineH > 700) { lineH = 700; }   //Line Height
 			float lineO = 160 - lineH / 2;                                        //Line Offset
-			FillRect(r*8+512, lineO, 8, lineH, olc::Pixel(233, 22, 100, rand() % 100));
+			FillRect(r*1, lineO, 1, lineH, olc::Pixel(233, 22, 100, rand() % 100));
 
-			ra += DR; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
+			ra += DR / (256/ 15); if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		}
 	}
 
@@ -155,9 +155,9 @@ public:
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		backgroundColor(olc::DARK_BLUE);
-		DrawMap2D();
+		// DrawMap2D();
 		DrawRays2D();
-		Drawplayer();
+		 // Drawplayer();
 		buttons();
 		return true;
 	}
