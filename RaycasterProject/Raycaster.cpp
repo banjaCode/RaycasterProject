@@ -13,27 +13,27 @@ using namespace std;
 class Example : public olc::PixelGameEngine
 {
 	// player X, player Y, player delta X, player delta y, player angle
-	float px, py, pdx, pdy, pWidth, pa = PI;
+	float px, py, pdx, pdy, pWidth, pa = PI, lineOV = 160, lineYV = 0;
+	float x = 0;
 
 	// draws player on 2d map
 	void Drawplayer()
 	{
 		FillRect(px - pWidth / 2, py - pWidth / 2, pWidth, pWidth, olc::YELLOW);
-		DrawLinePro(px, py, px + pdx * 10, py + pdy * 10, 5, olc::YELLOW);
 	}
 
 	// map layout
 	const static int mapX = 8, mapY = 8, mapS = 64;
 	int map[mapS] =
 	{
-		 1,1,1,1,1,1,1,1,
-		 1,0,1,0,0,0,0,1,
+		 1,1,1,1,3,1,1,1,
+		 2,0,1,0,0,0,0,2,
 		 1,0,1,0,0,1,0,1,
-		 1,0,1,0,0,0,0,1,
-		 1,0,0,0,0,0,0,0,
-		 1,0,1,1,0,1,0,1,
-		 1,0,0,0,0,0,0,1,
-		 1,1,1,1,1,1,1,1,
+		 1,0,1,3,0,2,0,3,
+		 1,0,0,0,0,0,0,3,
+		 3,0,0,1,0,1,0,1,
+		 1,0,0,1,0,0,0,2,
+		 1,1,1,2,1,2,1,1,
 	};
 
 	//draws 2d map
@@ -46,10 +46,10 @@ class Example : public olc::PixelGameEngine
 		{
 			for (x = 0; x < mapX;x++)
 			{
-				if (map[y * mapX + x] == 1) { color = olc::WHITE; }
+				if (map[y * mapX + x] > 0) { color = olc::WHITE; }
 				else { color = olc::BLACK;; }
 				xo = x * mapS; yo = y * mapS;
-				FillRect(xo + 1, yo + 1, mapS - 1, mapS - 1, color);
+				FillRect(xo + 3, yo + 3, mapS - 3, mapS - 3, color);
 			}
 		}
 	}
@@ -58,21 +58,28 @@ class Example : public olc::PixelGameEngine
 		float tc = GetElapsedTime();
 		float mv = tc * 100;    //movement speed
 		float rv = tc * 100;    //rotational speed
+		bool walk = false;
 		// vertical and horisontal movement
-		if (GetKey(olc::Key::A).bHeld) { px += cos(pa - PI2) * mv; py += sin(pa - PI2) * mv; }
-		if (GetKey(olc::Key::D).bHeld) { px += cos(pa + PI2) * mv; py += sin(pa + PI2) * mv; }
-		if (GetKey(olc::Key::W).bHeld) { px += pdx; py += pdy; }
-		if (GetKey(olc::Key::S).bHeld) { px -= pdx; py -= pdy; }
+		if (GetKey(olc::Key::A).bHeld) { px += cos(pa - PI2) * mv; py += sin(pa - PI2) * mv; walk = true; }
+		if (GetKey(olc::Key::D).bHeld) { px += cos(pa + PI2) * mv; py += sin(pa + PI2) * mv; walk = true; }
+		if (GetKey(olc::Key::W).bHeld) { px += pdx; py += pdy; walk = true; }
+		if (GetKey(olc::Key::S).bHeld) { px -= pdx; py -= pdy; walk = true; }
 		// rotational movement
 		if (GetKey(olc::Key::LEFT).bHeld) { pa -= 0.05 * rv; if (pa < 0)         pa += 2 * PI; }
 		if (GetKey(olc::Key::RIGHT).bHeld) { pa += 0.05 * rv; if (pa > 2 * PI)   pa -= 2 * PI; }
 		pdx = cos(pa) * mv; pdy = sin(pa) * mv; // sets pdx and pdy depending on player angle
+
+		if (GetKey(olc::Key::UP).bHeld) { lineOV +=  20; }
+		if (GetKey(olc::Key::DOWN).bHeld) { lineOV -= 20; }
+		if (walk == true) { lineYV = sin(DR * x) / 10; x += 1000 * tc; }
 	}
 
 	void DrawRays2D()
 	{
 		// dof = depth off field, changes how far the ray goes
-		int r, mx, my, mp, dof; float  rx, ry, ra, xo, yo, disT;
+		int r, mx, my, mp, dof, color, color2, color1, kontrast; float  rx, ry, ra, xo, yo, disT;
+		int colorV[3];
+
 		ra = pa - DR * 30; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		for (r = 0; r < 1024; r++)
 		{
@@ -81,13 +88,19 @@ class Example : public olc::PixelGameEngine
 			float disH = 1000000, hx = px, hy = py;
 			float aTan = -1 / tan(ra);
 			if (ra > PI) { ry = (((int)py >> 6) << 6) - 0.0001; rx = (py - ry) * aTan + px; yo = -64; xo = -yo * aTan; } //looking up
-			else if (ra < PI) { ry = (((int)py >> 6) << 6) + 64; rx = (py - ry) * aTan + px; yo = 64; xo = -yo * aTan; } //looking down
+			else if (ra < PI) { ry = (((int)py >> 6) << 6) + 64; rx = (py - ry) * aTan + px; yo = 64; xo = -yo * aTan; } //looking downwww
 			else if (ra == 0 || ra == PI) { rx = px; ry = py; dof = 8; } //looking straight left or right
 
-			while (dof < 8)
+			while (dof < 8) 
 			{
 				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapX + mx; // bestämmer en rays position i v�rt 8 * 8 rutn�t
-				if (mp > 0 && mp <= (mapX * mapY) && map[mp] == 1) { hx = rx; hy = ry; disH = Dist(px, py, hx, hy, ra); break; }  // Om platsen �r en etta sparar rx och ry och l�ngd p� ray
+				if (mp > 0 && mp <= (mapX * mapY) && map[mp] > 0)  // Sparar rx och ry och l�ngd p� ray
+				{ 
+					hx = rx; hy = ry; 
+					disH = Dist(px, py, hx, hy, ra); 
+					color1 = map[mp];
+					break; 
+				} 
 				else { rx += xo; ry += yo; dof += 1; } // om platsen �r noll, skicka vidare rayen till n�sta position i rutnätet
 			}
 
@@ -103,21 +116,35 @@ class Example : public olc::PixelGameEngine
 			while (dof < 8)
 			{
 				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapX + mx;
-				if (mp > 0 && mp <= (mapX * mapY) && map[mp] == 1) { vx = rx; vy = ry; disV = Dist(px, py, vx, vy, ra); break; }
+				if (mp > 0 && mp <= (mapX * mapY) && map[mp] > 0) 
+				{ 
+					vx = rx; vy = ry;
+					disV = Dist(px, py, vx, vy, ra);
+					color2 = map[mp]; 
+					break; 
+				}
 				else { rx += xo; ry += yo; dof += 1; }
 			}
 			// set ray distans depending on which is longer
-			if (disV < disH) { rx = vx; ry = vy; disT = disV; }
-			else if (disH < disV) { rx = hx; ry = hy; disT = disH; }
+			if (disV < disH) {
+				rx = vx; ry = vy; disT = disV; kontrast = 10; color = color2;
+			}
+			else if (disH < disV) { rx = hx; ry = hy; disT = disH; kontrast = 0; color = color1;}
+
+			if (color == 1) { colorV[0] = 255; colorV[1] = 22; colorV[2] = 100; }
+			else if (color == 2) { color = color2; colorV[0] = 100; colorV[1] = 255; colorV[2] = 160; }
+			else { colorV[0] = 100; colorV[1] = 255; colorV[2] = 230; }
 
 			DrawLine(px, py, rx, ry, olc::DARK_RED);
-
 			//-- Draw 3D walls --
+
+
+
 			float ca = pa - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
 			float lineH = (mapS * 320) / disT;  //Line Height
-			float lineO = 160 - lineH / 2;                                        //Line Offset
-			float alphaV = 255 * 64 / disT; if (disT < 64) { alphaV = 255; }
-			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(233, 22, 100, alphaV));
+			float lineO = lineOV - lineH/ (2 + lineYV);                                        //Line Offset
+			float alphaV = 255 * 64 / (disT - 45 * disT/64 + 45);  if (disT < 64) { alphaV = 255; } // make shadows
+			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 
 			ra += DR / (256 / 15); if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		}
@@ -166,6 +193,7 @@ public:
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		backgroundColor(olc::DARK_BLUE);
+		FillRect(512, (ScreenHeight() + 2* lineOV - 480) / 2, ScreenWidth(), ScreenHeight()*4, olc::DARK_GREEN);
 		FillRect(0, 0, 512, 512 ,olc::Pixel (255,255,255,100));
 		DrawMap2D();
 		DrawRays2D();
