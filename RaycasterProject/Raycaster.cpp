@@ -169,8 +169,8 @@ class Example : public olc::PixelGameEngine
 			//-- Draw 3D walls --
 
 			float ca = pa - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
-			float lineH = (mapS * 320) / disT;  //Line Height
-			float lineO = 160 - lineH / 2;                                        //Line Offset
+			float lineH = (mapS * 320) / disT;                                                                                  //Line Height
+			float lineO = lineOV - lineH / (2 + lineYV);                                                                        //Line Offset
 			float alphaV = 255 * 64 / disT; if (disT < 64) { alphaV = 255; }
 
 			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
