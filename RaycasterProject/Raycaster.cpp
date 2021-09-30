@@ -29,7 +29,7 @@ class Example : public olc::PixelGameEngine
 	}
 
 	// map layout
-	const static int mapX = 8, mapY = 8, mapS = 64;
+	const static int mapWidth = 8, mapHeight = 8, mapS = 64;
 	int map[mapS] =
 	{
 		 1,1,1,1,3,1,1,1,
@@ -48,11 +48,11 @@ class Example : public olc::PixelGameEngine
 		olc::Pixel color;
 		//x offset, y offset
 		int x, y, xo, yo;
-		for (y = 0; y < mapY; y++)
+		for (y = 0; y < mapHeight; y++)
 		{
-			for (x = 0; x < mapX;x++)
+			for (x = 0; x < mapWidth;x++)
 			{
-				if (map[y * mapX + x] > 0) { color = olc::WHITE; }
+				if (map[y * mapWidth + x] > 0) { color = olc::WHITE; }
 				else { color = olc::BLACK;; }
 				xo = x * mapS; yo = y * mapS;
 				FillRect(xo + 3, yo + 3, mapS - 3, mapS - 3, color);
@@ -61,22 +61,9 @@ class Example : public olc::PixelGameEngine
 	}
 
 	void buttons() {
-		int test = (int)px / 64 * 64;
-		int test2 = (int)py / 64 * 64;
-		DrawLinePro(px, py, test, py, 4, olc::DARK_RED);
-		DrawLinePro(px, py, test + 64, py, 4, olc::DARK_RED);
-		DrawLinePro(px, py, px, test2, 4, olc::DARK_RED);
-		DrawLinePro(px, py, px, test2 + 64, 4, olc::DARK_RED);
-		float length = px - test;
-		bool x = true;
-		int mp = test / 64 + test2 / 64 * 8;
-		cout << mp << "  ";
-		if (length < 84 && map[mp] > 0)
-		{
-			x = false;
-		}
-
-
+		//previous x and y positions
+		float saveX = px, saveY = py;
+		//variables for speed
 		float xDiff = abs(pMouseCoordinates.x - GetMouseX());
 		float yDiff = abs(pMouseCoordinates.y - GetMouseY());
 		float tc = GetElapsedTime();
@@ -86,10 +73,27 @@ class Example : public olc::PixelGameEngine
 		bool walk = false;
 
 		// vertical and horisontal movement
-		if (GetKey(olc::Key::A).bHeld && x) { px += cos(pa - PI2) * mv; py += sin(pa - PI2) * mv; walk = true; }
+		if (GetKey(olc::Key::A).bHeld) { px += cos(pa - PI2) * mv; py += sin(pa - PI2) * mv; walk = true; }
 		if (GetKey(olc::Key::D).bHeld) { px += cos(pa + PI2) * mv; py += sin(pa + PI2) * mv; walk = true; }
 		if (GetKey(olc::Key::W).bHeld) { px += pdx; py += pdy; walk = true; }
 		if (GetKey(olc::Key::S).bHeld) { px -= pdx; py -= pdy; walk = true; }
+
+		// worldlimimts, checks walls and stops movement
+		float wallLimit = pWidth/2;
+		int mapPosX = (int)saveX >> 6, mapPosY = (int)saveY >> 6, mapPos = mapPosY * 8 + mapPosX;
+		float leftLength = abs(px - mapPosX * 64), rightLength = abs(px - (mapPosX + 1) * 64);
+		float upLength = abs(py - mapPosY * 64), downLength = abs(py - (mapPosY + 1) * 64);
+
+		DrawLinePro(px, py, px - leftLength, py, 5, olc::DARK_RED);
+		DrawLinePro(px, py, px + rightLength, py, 5, olc::DARK_RED);
+		DrawLinePro(px, py, px, py - upLength,5 ,olc::DARK_RED);
+		DrawLinePro(px, py, px, py + downLength, 5,olc::DARK_RED);
+
+		if (leftLength < wallLimit && map[mapPos - 1] > 0)        { px = saveX; }
+		if (rightLength < wallLimit && map[mapPos + 1] > 0)       { px = saveX; }
+		if (upLength < wallLimit && map[mapPos - mapWidth] > 0)   { py = saveY; }
+		if (downLength < wallLimit && map[mapPos + mapWidth] > 0) { py = saveY; }
+
 
 		// rotational movement
 		if (pMouseCoordinates.x > GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth()) { pa -= rxv; if (pa < DR)        pa += 2 * PI; }
@@ -122,8 +126,8 @@ class Example : public olc::PixelGameEngine
 
 			while (dof < 8) 
 			{
-				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapX + mx; // bestämmer en rays position i v�rt 8 * 8 rutn�t
-				if (mp > 0 && mp <= (mapX * mapY) && map[mp] > 0)  // Sparar rx och ry och l�ngd p� ray
+				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapWidth + mx; // bestämmer en rays position i v�rt 8 * 8 rutn�t
+				if (mp > 0 && mp <= (mapWidth * mapHeight) && map[mp] > 0)  // Sparar rx och ry och l�ngd p� ray
 				{ 
 					hx = rx; hy = ry; 
 					disH = Dist(px, py, hx, hy, ra); 
@@ -144,8 +148,8 @@ class Example : public olc::PixelGameEngine
 
 			while (dof < 8)
 			{
-				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapX + mx;
-				if (mp > 0 && mp <= (mapX * mapY) && map[mp] > 0) 
+				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapWidth + mx;
+				if (mp > 0 && mp <= (mapWidth * mapHeight) && map[mp] > 0) 
 				{ 
 					vx = rx; vy = ry;
 					disV = Dist(px, py, vx, vy, ra);
