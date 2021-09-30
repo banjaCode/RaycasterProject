@@ -117,11 +117,36 @@ class Example : public olc::PixelGameEngine
 			float lineH = (mapS * 320) / disT;  //Line Height
 			float lineO = 160 - lineH / 2;                                        //Line Offset
 			float alphaV = 255 * 64 / disT; if (disT < 64) { alphaV = 255; }
-			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(233, 22, 100, alphaV));
+			//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(233, 22, 100, alphaV));
+			PaintTextures(r, lineO, lineH, alphaV);
 
 			ra += DR / (256 / 15); if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		}
 	}
+
+	void PaintTextures(int r, float lineO, float lineH,int alphaV) {
+		int const size = (8);
+		int texture[size*size] =
+		{
+			 1,1,1,1,1,1,1,1,
+			 1,0,0,0,0,0,0,1,
+			 1,0,0,0,0,1,0,1,
+			 1,0,0,0,0,0,0,1,
+			 1,0,0,0,0,0,0,1,
+			 1,0,0,0,0,0,0,1,
+			 1,0,0,0,0,0,0,1,
+			 1,1,1,1,1,1,1,1,
+		};
+		int pixelHight = lineH / size;
+		for (int i = 0; i <= size; i++) {
+			int coulor = 233;
+			if (i > 4) {
+				coulor = 100;
+			}
+			FillRect(r * 1 + 512, lineO+(pixelHight*i), 1, pixelHight, olc::Pixel(coulor, 22, 100, alphaV));
+		}
+	}
+
 
 	void backgroundColor(olc::Pixel color) {
 		FillRect(0, 0, ScreenWidth(), ScreenHeight(), color);
