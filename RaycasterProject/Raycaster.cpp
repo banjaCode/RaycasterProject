@@ -17,18 +17,37 @@ class Example : public olc::PixelGameEngine
 		float x;
 		float y;
 	};
+	struct Player_Values
+	{
+		float x, y;
+		float previous_x, previous_y;
+		float delta_x, delta_y;
+		float width;
+		float moved_Distance = 0;
+		float xSensitivity = 1, ySensitivity = 500;
+		float movement_speed;
+		bool walk_animation = false;
+		float walk_animation_speed, walk_animation_waveLength;
+		float angle;
+	};
+	struct Wall_Values 
+	{
+		float offset;
+	};
 
 	// player X, player Y, player delta X, player delta y, player angle
-	float px, py, pdx, pdy, pWidth, pa = PI, lineOV = 160, lineYV = 0, distMoved = 0;
-    Vector2D pMouseCoordinates= {(float)GetMouseX(), (float)GetMouseY()};
-
-	// draws player on 2d map
+	
+	Vector2D pMouseCoordinates;
+	Player_Values player;
+	Wall_Values wall;
+		float lineYV = 0;
+	// [ Draw player on 2d map ]
 	void Drawplayer()
 	{
-		FillRect(px - pWidth / 2, py - pWidth / 2, pWidth, pWidth, olc::YELLOW);
+		FillRect(player.x - player.width / 2, player.y - player.width / 2, player.width, player.width, olc::YELLOW);
 	}
 
-	// map layout
+	// [ Map layout ]
 	const static int mapWidth = 8, mapHeight = 8, mapS = 64;
 	int map[mapS] =
 	{
@@ -42,7 +61,7 @@ class Example : public olc::PixelGameEngine
 		 1,1,1,2,1,2,1,1,
 	};
 
-	//draws 2d map
+	// [ Draws 2D map ]
 	void DrawMap2D()
 	{
 		olc::Pixel color;
@@ -60,91 +79,147 @@ class Example : public olc::PixelGameEngine
 		}
 	}
 
+	// [ Button controls ]
 	void buttons() {
-		//previous x and y positions
-		float saveX = px, saveY = py;
-		//variables for speed
-		float xDiff = abs(pMouseCoordinates.x - GetMouseX());
-		float yDiff = abs(pMouseCoordinates.y - GetMouseY());
+		// Time Correctiion
 		float tc = GetElapsedTime();
-		float mv = tc * 100;
-		float ryv = tc * yDiff * 500; if (yDiff > 20) { yDiff = 20; }  //rotational speed Y
-		float rxv = tc * xDiff;                                       //rotational speed X
-		bool walk = false;
+		player.previous_x = player.x;
+		player.previous_y = player.y;
 
-		// vertical and horisontal movement
-		if (GetKey(olc::Key::A).bHeld) { px += cos(pa - PI2) * mv; py += sin(pa - PI2) * mv; walk = true; }
-		if (GetKey(olc::Key::D).bHeld) { px += cos(pa + PI2) * mv; py += sin(pa + PI2) * mv; walk = true; }
-		if (GetKey(olc::Key::W).bHeld) { px += pdx; py += pdy; walk = true; }
-		if (GetKey(olc::Key::S).bHeld) { px -= pdx; py -= pdy; walk = true; }
+		// -- VERTICAL AND HORIZONTAL MOVEMENT --
+		player.movement_speed = 100;
 
-		// worldlimimts, checks walls and stops movement
-		float wallLimit = pWidth/2;
-		int mapPosX = (int)saveX >> 6, mapPosY = (int)saveY >> 6, mapPos = mapPosY * 8 + mapPosX;
-		float leftLength = abs(px - mapPosX * 64), rightLength = abs(px - (mapPosX + 1) * 64);
-		float upLength = abs(py - mapPosY * 64), downLength = abs(py - (mapPosY + 1) * 64);
+	    // sets pdx and pdy depending on player angle
+		player.delta_x = cos(player.angle) * player.movement_speed * tc;
+		player.delta_y = sin(player.angle) * player.movement_speed * tc; 
 
-		DrawLinePro(px, py, px - leftLength, py, 5, olc::DARK_RED);
-		DrawLinePro(px, py, px + rightLength, py, 5, olc::DARK_RED);
-		DrawLinePro(px, py, px, py - upLength,5 ,olc::DARK_RED);
-		DrawLinePro(px, py, px, py + downLength, 5,olc::DARK_RED);
+		if (GetKey(olc::Key::A).bHeld) { player.x += cos(player.angle - PI2) * player.movement_speed * tc; player.y += sin(player.angle - PI2) * player.movement_speed * tc; player.walk_animation = true; }
+		if (GetKey(olc::Key::D).bHeld) { player.x += cos(player.angle + PI2) * player.movement_speed * tc; player.y += sin(player.angle + PI2) * player.movement_speed * tc; player.walk_animation = true; }
+		if (GetKey(olc::Key::W).bHeld) { player.x += player.delta_x; player.y += player.delta_y; player.walk_animation = true; }
+		if (GetKey(olc::Key::S).bHeld) { player.x -= player.delta_x; player.y -= player.delta_y; player.walk_animation = true; }
 
-		if (leftLength < wallLimit && map[mapPos - 1] > 0)        { px = saveX; }
-		if (rightLength < wallLimit && map[mapPos + 1] > 0)       { px = saveX; }
-		if (upLength < wallLimit && map[mapPos - mapWidth] > 0)   { py = saveY; }
-		if (downLength < wallLimit && map[mapPos + mapWidth] > 0) { py = saveY; }
+		// Animation for walking
+		if (player.walk_animation == true) {
+			player.walk_animation_speed = 1;
+			player.walk_animation_waveLength = 4;
+			lineYV = (sin(DR * player.moved_Distance - PI2) + 1) / player.walk_animation_waveLength;
+			player.moved_Distance += player.walk_animation_speed * 1000 * tc;
+			player.walk_animation = false;
+		}
 
+		// -- ROTATIONAL MOVEMENT --
+		Vector2D rotational_Movement_Speed;
+		rotational_Movement_Speed.x = abs(pMouseCoordinates.x - GetMouseX()) * tc * player.xSensitivity;
+		rotational_Movement_Speed.y = abs(pMouseCoordinates.y - GetMouseY()) * tc * player.ySensitivity;
 
-		// rotational movement
-		if (pMouseCoordinates.x > GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth()) { pa -= rxv; if (pa < DR)        pa += 2 * PI; }
-		if (pMouseCoordinates.x < GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth()) { pa += rxv; if (pa > 359 * DR)   pa -= 2 * PI; }
-		pdx = cos(pa) * mv; pdy = sin(pa) * mv; // sets pdx and pdy depending on player angle
+		if (( pMouseCoordinates.x > GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth() ) || GetKey(olc::Key::LEFT).bHeld)
+		{ 
+			player.angle -= rotational_Movement_Speed.x; if (player.angle < DR)         player.angle += 2 * PI;
+		} 
+		if (pMouseCoordinates.x < GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth() || GetKey(olc::Key::RIGHT).bHeld)
+		{ 
+			player.angle += rotational_Movement_Speed.x; if (player.angle > 359 * DR)   player.angle -= 2 * PI;
+		}
 
-		if (pMouseCoordinates.y > GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) { lineOV += ryv; if (lineOV > 160 + 500) { lineOV = 160 + 500; } }
-		if (pMouseCoordinates.y < GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) { lineOV -= ryv; if (lineOV < 160 - 500) { lineOV = 160 - 500; } }
-		if (walk == true) { lineYV = sin(DR * distMoved) / 10; distMoved += 1000 * tc; }
-		pMouseCoordinates.x = GetMouseX();
-		pMouseCoordinates.y = GetMouseY();
+		if ((pMouseCoordinates.y > GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::DOWN).bHeld) { 
+			wall.offset += rotational_Movement_Speed.y; if (wall.offset > 160 + 500) { wall.offset = 160 + 500; }
+		}
+		if ((pMouseCoordinates.y < GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::UP).bHeld) {
+			wall.offset -= rotational_Movement_Speed.y; if (wall.offset < 160 - 500) { wall.offset = 160 - 500; }
+		}
+
+		// saves mouse coordinates
+		pMouseCoordinates = { (float)GetMouseX(), (float)GetMouseY() };
+
+		// -- SET WORLD LIMITS -- 
+		float wallLimit = player.width / 2;
+		int mapPosX = (int)player.previous_x >> 6, mapPosY = (int)player.previous_y >> 6, mapPos = mapPosY * 8 + mapPosX;
+		float leftLength = abs(player.x - mapPosX * 64), rigthLength = abs(player.x - (mapPosX + 1) * 64);
+		float upLength = abs(player.y - mapPosY * 64), downLength = abs(player.y - (mapPosY + 1) * 64);
+
+		if (leftLength < wallLimit && map[mapPos - 1] > 0) { player.x = player.previous_x; }
+		if (rigthLength < wallLimit && map[mapPos + 1] > 0) { player.x = player.previous_x; }
+		if (upLength < wallLimit && map[mapPos - mapWidth] > 0) { player.y = player.previous_y; }
+		if (downLength < wallLimit && map[mapPos + mapWidth] > 0) { player.y = player.previous_y; }
 	}
 
+	// [ cast rays and draw 3D world ]
 	void DrawRays2D()
 	{
 		// dof = depth off field, changes how far the ray goes
 		int r, mx, my, mp, dof, color, color2, color1, kontrast; float  rx, ry, ra, xo, yo, disT;
 		int colorV[3];
 
-		ra = pa - DR * 30; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
+		ra = player.angle - DR * 30;
+		if (ra < 0) { ra += 2 * PI; }
+		if (ra > 2 * PI) { ra -= 2 * PI; }
+
 		for (r = 0; r < 1024; r++)
 		{
-			//-- check horizontal lines--
+			//--  CHECK HORIZONTAL LINES --
 			dof = 0;
-			float disH = 1000000, hx = px, hy = py;
-			float aTan = -1 / tan(ra);
-			if (ra > PI) { ry = (((int)py >> 6) << 6) - 0.0001; rx = (py - ry) * aTan + px; yo = -64; xo = -yo * aTan; } //looking up
-			else if (ra < PI) { ry = (((int)py >> 6) << 6) + 64; rx = (py - ry) * aTan + px; yo = 64; xo = -yo * aTan; } //looking downwww
-			else if (ra == 0 || ra == PI) { rx = px; ry = py; dof = 8; } //looking straight left or right
+			float disH = 1000000, hx = player.x, hy = player.y;
+			float aTan = -1 / tan(ra);	
 
-			while (dof < 8) 
+			if (ra > PI) //looking up
+			{ 
+			ry = (((int)player.y >> 6) << 6) - 0.0001;
+			rx = (player.y - ry) * aTan + player.x;
+			yo = -64; xo = -yo * aTan; 
+			}
+
+			else if (ra < PI)	//looking down
 			{
-				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapWidth + mx; // bestämmer en rays position i v�rt 8 * 8 rutn�t
-				if (mp > 0 && mp <= (mapWidth * mapHeight) && map[mp] > 0)  // Sparar rx och ry och l�ngd p� ray
+				ry = (((int)player.y >> 6) << 6) + 64;
+				rx = (player.y - ry) * aTan + player.x;
+				yo = 64; xo = -yo * aTan; 
+			} 
+
+			else if (ra == 0 || ra == PI) 	//looking straight left or right
+			{
+				rx = player.x;
+				ry = player.y;
+				dof = 8; 
+			}
+
+			while (dof < 8) 			
+			{
+				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapWidth + mx;
+				if (mp > 0 && mp <= (mapWidth * mapHeight) && map[mp] > 0) 
 				{ 
 					hx = rx; hy = ry; 
-					disH = Dist(px, py, hx, hy, ra); 
+					disH = Pyth(player.x, player.y, hx, hy); 
 					color1 = map[mp];
 					break; 
 				} 
-				else { rx += xo; ry += yo; dof += 1; } // om platsen �r noll, skicka vidare rayen till n�sta position i rutnätet
+				else { rx += xo; ry += yo; dof += 1; }
 			}
 
 			//-- check vertical lines--
 			dof = 0;
-			float disV = 1000000, vx = px, vy = py;
+			float disV = 1000000, vx = player.x, vy = player.y;
 			float nTan = -tan(ra);
 
-			if (ra > PI2 && ra < PI3) { rx = (((int)px >> 6) << 6) - 0.0001; ry = (px - rx) * nTan + py; xo = -64; yo = -xo * nTan; } //looking left
-			else if (ra < PI2 || ra > PI3) { rx = (((int)px >> 6) << 6) + 64; ry = (px - rx) * nTan + py; xo = 64; yo = -xo * nTan; } //looking right
-			else if (ra == 0 || ra == PI) { rx = px; ry = py; dof = 8; } //looking straight up or down
+			if (ra > PI2 && ra < PI3) // Looking left
+			{
+				rx = (((int)player.x >> 6) << 6) - 0.0001; 
+				ry = (player.x - rx) * nTan + player.y;
+				xo = -64; yo = -xo * nTan; 
+			}
+
+			else if (ra < PI2 || ra > PI3) // Looking right
+			{
+				rx = (((int)player.x >> 6) << 6) + 64;
+				ry = (player.x - rx) * nTan + player.y;
+				xo = 64; yo = -xo * nTan;
+			} 
+
+			else if (ra == 0 || ra == PI) //looking straight up or down
+			{
+				rx = player.x; 
+				ry = player.y;
+				dof = 8; 
+			}
 
 			while (dof < 8)
 			{
@@ -152,14 +227,14 @@ class Example : public olc::PixelGameEngine
 				if (mp > 0 && mp <= (mapWidth * mapHeight) && map[mp] > 0) 
 				{ 
 					vx = rx; vy = ry;
-					disV = Dist(px, py, vx, vy, ra);
+					disV = Pyth(player.x, player.y, vx, vy);
 					color2 = map[mp]; 
 					break; 
 				}
 				else { rx += xo; ry += yo; dof += 1; }
 			}
-			// set ray distans depending on which is longer
-			if (disV < disH) 
+		
+			if (disV < disH)  // set ray distans depending on which is longer
 			{
 				rx = vx; ry = vy; disT = disV; kontrast = 10; color = color2;
 			}
@@ -169,12 +244,12 @@ class Example : public olc::PixelGameEngine
 			else if (color == 2) { color = color2; colorV[0] = 100; colorV[1] = 255; colorV[2] = 160; }
 			else { colorV[0] = 100; colorV[1] = 255; colorV[2] = 230; }
 
-			DrawLine(px, py, rx, ry, olc::DARK_RED);
-			//-- Draw 3D walls --
+			DrawLine(player.x, player.y, rx, ry, olc::DARK_RED);
 
-			float ca = pa - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
+			//-- DRAW 3D WORLD --
+			float ca = player.angle - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
 			float lineH = (mapS * 320) / disT;                                                                                  //Line Height
-			float lineO = lineOV - lineH / (2 + lineYV);                                                                        //Line Offset
+			float lineO = wall.offset - lineH / (2 + lineYV);                                                                        //Line Offset
 			float alphaV = 255 * 64 / disT; if (disT < 64) { alphaV = 255; }
 
 			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
@@ -213,7 +288,7 @@ class Example : public olc::PixelGameEngine
 	}
 
 
-	float Dist(float ax, float ay, float bx, float by, float ang)
+	float Pyth(float ax, float ay, float bx, float by)
 	{
 		return sqrt(pow((bx - ax), 2) + pow((by - ay), 2));
 	}
@@ -241,19 +316,20 @@ public:
 	Example()
 	{
 		// Name your application
-		sAppName = "Example";
+		sAppName = "Raycaster";
 	}
 public:
 	bool OnUserCreate() override
 	{
 		backgroundColor(olc::DARK_GREY);
-		px = 300; py = 300; pWidth = 16;
+		player.x = 300; player.y = 300; player.width = 16;
+		player.angle = PI;
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		backgroundColor(olc::DARK_BLUE);
-		FillRect(512, (ScreenHeight() + 2* lineOV - 480) / 2, ScreenWidth(), ScreenHeight()*4, olc::DARK_GREEN);
+		FillRect(512, (ScreenHeight() + 2* wall.offset - 480) / 2, ScreenWidth(), ScreenHeight()*4, olc::DARK_GREEN);
 		FillRect(0, 0, 512, 512 ,olc::Pixel (255,255,255,100));
 		DrawMap2D();
 		DrawRays2D();
