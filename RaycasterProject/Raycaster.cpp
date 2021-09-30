@@ -12,9 +12,15 @@ using namespace std;
 
 class Example : public olc::PixelGameEngine
 {
+	struct Vector2D
+	{
+		float x;
+		float y;
+	};
+
 	// player X, player Y, player delta X, player delta y, player angle
-	float px, py, pdx, pdy, pWidth, pa = PI, lineOV = 160, lineYV = 0;
-	float x = 0;
+	float px, py, pdx, pdy, pWidth, pa = PI, lineOV = 160, lineYV = 0, distMoved = 0;
+    Vector2D pMouseCoordinates= {(float)GetMouseX(), (float)GetMouseY()};
 
 	// draws player on 2d map
 	void Drawplayer()
@@ -55,23 +61,46 @@ class Example : public olc::PixelGameEngine
 	}
 
 	void buttons() {
+		int test = (int)px / 64 * 64;
+		int test2 = (int)py / 64 * 64;
+		DrawLinePro(px, py, test, py, 4, olc::DARK_RED);
+		DrawLinePro(px, py, test + 64, py, 4, olc::DARK_RED);
+		DrawLinePro(px, py, px, test2, 4, olc::DARK_RED);
+		DrawLinePro(px, py, px, test2 + 64, 4, olc::DARK_RED);
+		float length = px - test;
+		bool x = true;
+		int mp = test / 64 + test2 / 64 * 8;
+		cout << mp << "  ";
+		if (length < 84 && map[mp] > 0)
+		{
+			x = false;
+		}
+
+
+		float xDiff = abs(pMouseCoordinates.x - GetMouseX());
+		float yDiff = abs(pMouseCoordinates.y - GetMouseY());
 		float tc = GetElapsedTime();
-		float mv = tc * 100;    //movement speed
-		float rv = tc * 100;    //rotational speed
+		float mv = tc * 100;
+		float ryv = tc * yDiff * 500; if (yDiff > 20) { yDiff = 20; }  //rotational speed Y
+		float rxv = tc * xDiff;                                       //rotational speed X
 		bool walk = false;
+
 		// vertical and horisontal movement
-		if (GetKey(olc::Key::A).bHeld) { px += cos(pa - PI2) * mv; py += sin(pa - PI2) * mv; walk = true; }
+		if (GetKey(olc::Key::A).bHeld && x) { px += cos(pa - PI2) * mv; py += sin(pa - PI2) * mv; walk = true; }
 		if (GetKey(olc::Key::D).bHeld) { px += cos(pa + PI2) * mv; py += sin(pa + PI2) * mv; walk = true; }
 		if (GetKey(olc::Key::W).bHeld) { px += pdx; py += pdy; walk = true; }
 		if (GetKey(olc::Key::S).bHeld) { px -= pdx; py -= pdy; walk = true; }
+
 		// rotational movement
-		if (GetKey(olc::Key::LEFT).bHeld) { pa -= 0.05 * rv; if (pa < 0)         pa += 2 * PI; }
-		if (GetKey(olc::Key::RIGHT).bHeld) { pa += 0.05 * rv; if (pa > 2 * PI)   pa -= 2 * PI; }
+		if (pMouseCoordinates.x > GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth()) { pa -= rxv; if (pa < DR)        pa += 2 * PI; }
+		if (pMouseCoordinates.x < GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth()) { pa += rxv; if (pa > 359 * DR)   pa -= 2 * PI; }
 		pdx = cos(pa) * mv; pdy = sin(pa) * mv; // sets pdx and pdy depending on player angle
 
-		if (GetKey(olc::Key::UP).bHeld) { lineOV +=  20; }
-		if (GetKey(olc::Key::DOWN).bHeld) { lineOV -= 20; }
-		if (walk == true) { lineYV = sin(DR * x) / 10; x += 1000 * tc; }
+		if (pMouseCoordinates.y > GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) { lineOV += ryv; if (lineOV > 160 + 500) { lineOV = 160 + 500; } }
+		if (pMouseCoordinates.y < GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) { lineOV -= ryv; if (lineOV < 160 - 500) { lineOV = 160 - 500; } }
+		if (walk == true) { lineYV = sin(DR * distMoved) / 10; distMoved += 1000 * tc; }
+		pMouseCoordinates.x = GetMouseX();
+		pMouseCoordinates.y = GetMouseY();
 	}
 
 	void DrawRays2D()
@@ -126,7 +155,8 @@ class Example : public olc::PixelGameEngine
 				else { rx += xo; ry += yo; dof += 1; }
 			}
 			// set ray distans depending on which is longer
-			if (disV < disH) {
+			if (disV < disH) 
+			{
 				rx = vx; ry = vy; disT = disV; kontrast = 10; color = color2;
 			}
 			else if (disH < disV) { rx = hx; ry = hy; disT = disH; kontrast = 0; color = color1;}
@@ -138,12 +168,10 @@ class Example : public olc::PixelGameEngine
 			DrawLine(px, py, rx, ry, olc::DARK_RED);
 			//-- Draw 3D walls --
 
-
-
 			float ca = pa - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
 			float lineH = (mapS * 320) / disT;  //Line Height
 			float lineO = lineOV - lineH/ (2 + lineYV);                                        //Line Offset
-			float alphaV = 255 * 64 / (disT - 45 * disT/64 + 45);  if (disT < 64) { alphaV = 255; } // make shadows
+			float alphaV = 255 * 64 / (disT - 20 * disT/64 + 20);  if (disT < 64) { alphaV = 255; } // make shadows
 			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 
 			ra += DR / (256 / 15); if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
@@ -163,13 +191,15 @@ class Example : public olc::PixelGameEngine
 
 	void DrawLinePro(double lineX, double lineY, double lineX2, double lineY2, int width, olc::Pixel color)
 	{
-		int inX, inY, inX2, inY2, wLineX, wLineY, wLineX2, wLineY2;
 		double dy, dx;
 		double lineK = (lineY2 - lineY) / (lineX2 - lineX);
 		double lineA = atan(lineK);
 		dy = sin(PI2 - lineA); dx = -cos(PI2 - lineA);
 
-		for (int i = 0; i < width / 2; i++)
+		int xLimit = (width / 2);
+		if (xLimit * 2 < width) { DrawLine(lineX,lineY, lineX2, lineY2, color); }
+
+		for (int i = 0; i < xLimit; i++)
 		{
 			DrawLine(lineX + (dx * i), lineY + (dy * i), lineX2 + (dx * i), lineY2 + (dy * i), color);
 			DrawLine(lineX - (dx * i), lineY - (dy * i), lineX2 - (dx * i), lineY2 - (dy * i), color);
