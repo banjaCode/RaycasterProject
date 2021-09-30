@@ -175,7 +175,10 @@ class Example : public olc::PixelGameEngine
 			float alphaV = 255 * 64 / (disT - 20 * disT/64 + 20);  if (disT < 64) { alphaV = 255; } // make shadows
 			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 
-		 //	PaintTextures(r, lineO, lineH, alphaV);
+                                       //Line Offset
+
+		//	PaintTextures(r, lineO, lineH, alphaV);
+
 			ra += DR / (256 / 15); if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		}
 	}
