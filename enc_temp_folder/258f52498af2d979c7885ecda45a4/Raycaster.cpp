@@ -24,7 +24,7 @@ class Example : public olc::PixelGameEngine
 		float delta_x, delta_y;											//spelarens hastighet
 		float width;													//spelare bred för kolision 
 		float moved_Distance = 0;										// x value of sin in walking animation
-		float xSensitivity = 0.5, ySensitivity = 200;						// sensitivity of mouse
+		float xSensitivity = 1, ySensitivity = 500;						// sensitivity of mouse
 		float movement_speed;											// movment speed
 		bool walk_animation = false;									//desides if the walking animation is on
 		float walk_animation_speed, walk_animation_waveLength;			//  1: speed of sin wave in walking animation  2:amplituden på sin vågen
@@ -126,8 +126,6 @@ class Example : public olc::PixelGameEngine
 		player.delta_x = cos(player.angle) * player.movement_speed * tc;
 		player.delta_y = sin(player.angle) * player.movement_speed * tc;
 		player.walk_animation = false;
-
-		//------------------------------------------------------------------------------------------------------------------
 
 		// -- ROTATIONAL MOVEMENT --
 		Vector2D rotational_Movement_Speed;
