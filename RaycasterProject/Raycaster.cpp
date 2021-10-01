@@ -5,7 +5,7 @@
 #include <math.h>
 #define PI  3.14159265358979323846
 #define PI2 PI/2
-#define PI3 (3*PI/2)
+#define PI3 PI + PI2
 #define DR 0.0174532925
 
 using namespace std;
@@ -54,9 +54,9 @@ class Example : public olc::PixelGameEngine
 		 1,1,1,1,3,1,1,1,
 		 2,0,1,0,0,0,0,2,
 		 1,0,1,0,0,1,0,1,
-		 1,0,1,3,0,2,0,3,
+		 1,0,0,0,0,2,0,3,
 		 1,0,0,0,0,0,0,3,
-		 3,0,0,1,0,1,0,1,
+		 3,0,0,0,0,1,0,1,
 		 1,0,0,1,0,0,0,2,
 		 1,1,1,2,1,2,1,1,
 	};
@@ -79,6 +79,7 @@ class Example : public olc::PixelGameEngine
 		}
 	}
 
+	float animation = 1;
 	// [ Button controls ]
 	void buttons() {
 		// Time Correctiion
@@ -89,23 +90,37 @@ class Example : public olc::PixelGameEngine
 		// -- VERTICAL AND HORIZONTAL MOVEMENT --
 		player.movement_speed = 100;
 
-	    // sets pdx and pdy depending on player angle
-		player.delta_x = cos(player.angle) * player.movement_speed * tc;
-		player.delta_y = sin(player.angle) * player.movement_speed * tc; 
+		int i = 0;
+		int x = 0;
 
-		if (GetKey(olc::Key::A).bHeld) { player.x += cos(player.angle - PI2) * player.movement_speed * tc; player.y += sin(player.angle - PI2) * player.movement_speed * tc; player.walk_animation = true; }
-		if (GetKey(olc::Key::D).bHeld) { player.x += cos(player.angle + PI2) * player.movement_speed * tc; player.y += sin(player.angle + PI2) * player.movement_speed * tc; player.walk_animation = true; }
-		if (GetKey(olc::Key::W).bHeld) { player.x += player.delta_x; player.y += player.delta_y; player.walk_animation = true; }
-		if (GetKey(olc::Key::S).bHeld) { player.x -= player.delta_x; player.y -= player.delta_y; player.walk_animation = true; }
+		if (GetKey(olc::Key::A).bHeld) { player.x += player.delta_y; player.y -= player.delta_x;   player.walk_animation = true; i = 1; }
+		if (GetKey(olc::Key::D).bHeld) { player.x -= player.delta_y; player.y += player.delta_x;   player.walk_animation = true; i = -1; }
+		if (GetKey(olc::Key::W).bHeld) { player.x += player.delta_x * animation; player.y += player.delta_y * animation;   player.walk_animation = true; x = 1; }
+		if (GetKey(olc::Key::S).bHeld) { player.x -= player.delta_x; player.y -= player.delta_y;   player.walk_animation = true; x = -1; }
 
+		float stop;
 		// Animation for walking
 		if (player.walk_animation == true) {
 			player.walk_animation_speed = 1;
 			player.walk_animation_waveLength = 4;
 			lineYV = (sin(DR * player.moved_Distance - PI2) + 1) / player.walk_animation_waveLength;
 			player.moved_Distance += player.walk_animation_speed * 1000 * tc;
-			player.walk_animation = false;
+			stop = lineYV / 2.5;
+			animation = 1;
 		}
+
+		if (player.walk_animation == false && lineYV > 0) 
+		{
+			lineYV -= 2.5 * tc; if (lineYV < 0) { lineYV = 0; }
+			animation -= (1 / stop) * tc; if (animation < 0) { animation = 1; }
+			player.x += x * player.delta_x * animation; player.y += x * player.delta_y * animation;
+			player.x += i * player.delta_y; player.y -= i * player.delta_x;
+		}
+
+		// sets pdx and pdy depending on player angle
+		player.delta_x = cos(player.angle) * player.movement_speed * tc;
+		player.delta_y = sin(player.angle) * player.movement_speed * tc;
+		player.walk_animation = false;
 
 		// -- ROTATIONAL MOVEMENT --
 		Vector2D rotational_Movement_Speed;
@@ -323,7 +338,7 @@ public:
 	{
 		backgroundColor(olc::DARK_GREY);
 		player.x = 300; player.y = 300; player.width = 16;
-		player.angle = PI;
+		player.angle = PI2;
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
