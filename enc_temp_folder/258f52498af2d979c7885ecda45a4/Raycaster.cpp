@@ -127,8 +127,6 @@ class Example : public olc::PixelGameEngine
 		player.delta_y = sin(player.angle) * player.movement_speed * tc;
 		player.walk_animation = false;
 
-		//------------------------------------------------------------------------------------------------------------------
-
 		// -- ROTATIONAL MOVEMENT --
 		Vector2D rotational_Movement_Speed;
 		rotational_Movement_Speed.x = abs(pMouseCoordinates.x - GetMouseX()) * tc * player.xSensitivity;

@@ -1,0 +1,3 @@
+-- Raycaster Project Loggbok -- 
+
+2021-10-01 - Benjamin: 
