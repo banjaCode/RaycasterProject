@@ -19,16 +19,16 @@ class Example : public olc::PixelGameEngine
 	};
 	struct Player_Values
 	{
-		float x, y;
-		float previous_x, previous_y;
-		float delta_x, delta_y;
-		float width;
-		float moved_Distance = 0;
-		float xSensitivity = 1, ySensitivity = 500;
-		float movement_speed;
-		bool walk_animation = false;
-		float walk_animation_speed, walk_animation_waveLength;
-		float angle;
+		float x, y;														//spelarens position
+		float previous_x, previous_y;									//spelarens position förra framen
+		float delta_x, delta_y;											//spelarens hastighet
+		float width;													//spelare bred för kolision 
+		float moved_Distance = 0;										// x value of sin in walking animation
+		float xSensitivity = 1, ySensitivity = 500;						// sensitivity of mouse
+		float movement_speed;											// movment speed
+		bool walk_animation = false;									//desides if the walking animation is on
+		float walk_animation_speed, walk_animation_waveLength;			//  1: speed of sin wave in walking animation  2:amplituden på sin vågen
+		float angle;													// angle of the caracter
 	};
 	struct Wall_Values 
 	{
