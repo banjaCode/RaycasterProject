@@ -24,7 +24,7 @@ class Example : public olc::PixelGameEngine
 		float delta_x, delta_y;											//spelarens hastighet
 		float width;													//spelare bred för kolision 
 		float moved_Distance = 0;										// x value of sin in walking animation
-		float xSensitivity = 1, ySensitivity = 500;						// sensitivity of mouse
+		float xSensitivity = 0.5, ySensitivity = 200;						// sensitivity of mouse
 		float movement_speed;											// movment speed
 		bool walk_animation = false;									//desides if the walking animation is on
 		float walk_animation_speed, walk_animation_waveLength;			//  1: speed of sin wave in walking animation  2:amplituden på sin vågen
@@ -52,12 +52,12 @@ class Example : public olc::PixelGameEngine
 	int map[mapS] =
 	{
 		 1,1,1,1,3,1,1,1,
-		 2,0,1,0,0,0,0,2,
-		 1,0,1,0,0,1,0,1,
-		 1,0,1,3,0,2,0,3,
+		 2,0,0,0,0,0,0,2,
+		 1,0,0,0,0,0,0,1,
 		 1,0,0,0,0,0,0,3,
-		 3,0,0,1,0,1,0,1,
-		 1,0,0,1,0,0,0,2,
+		 1,0,0,0,0,0,0,3,
+		 3,0,0,0,0,0,0,1,
+		 1,0,0,0,0,0,0,2,
 		 1,1,1,2,1,2,1,1,
 	};
 
