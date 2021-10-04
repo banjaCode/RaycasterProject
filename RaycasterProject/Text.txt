@@ -1,3 +1,7 @@
 -- Raycaster Project Loggbok -- 
 
 2021-10-01 - Benjamin: 
+
+- Ändrat player speed till velocity x och y
+- jobbat med att fixa plroblem med diagonal rörelse
+- ändrat variabel namn

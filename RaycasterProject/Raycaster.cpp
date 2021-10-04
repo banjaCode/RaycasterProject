@@ -19,19 +19,21 @@ class Example : public olc::PixelGameEngine
 	};
 	struct Player_Values
 	{
-		float x, y;														//spelarens position
+		float x, y;						                                //spelarens x och y position
+		float angle;                                                    // angle of the caracter
 		float previous_x, previous_y;									//spelarens position förra framen
-		float delta_x, delta_y;											//spelarens hastighet
+		Vector2D velocity;          									//spelarens hastighet
+		float velocity_angle;
 		float width;													//spelare bred för kolision 
 		float moved_Distance = 0;										// x value of sin in walking animation
 		float xSensitivity = 0.5, ySensitivity = 200;						// sensitivity of mouse
 		float movement_speed;											// movment speed
-		bool walk_animation = false;									//desides if the walking animation is on
+		bool walk_animation = false;									// desides if the walking animation is on
 		float walk_animation_speed, walk_animation_waveLength;			//  1: speed of sin wave in walking animation  2:amplituden på sin vågen
-		float angle;													// angle of the caracter
 	};
 	struct Wall_Values 
 	{
+		float angle;
 		float offset;
 	};
 
@@ -40,7 +42,7 @@ class Example : public olc::PixelGameEngine
 	Vector2D pMouseCoordinates;
 	Player_Values player;
 	Wall_Values wall;
-		float lineYV = 0;
+
 	// [ Draw player on 2d map ]
 	void Drawplayer()
 	{
@@ -79,7 +81,6 @@ class Example : public olc::PixelGameEngine
 		}
 	}
 
-	float animation = 1;
 	// [ Button controls ]
 	void buttons() {
 		// Time Correctiion
@@ -88,45 +89,37 @@ class Example : public olc::PixelGameEngine
 		player.previous_y = player.y;
 
 		// -- VERTICAL AND HORIZONTAL MOVEMENT --
-		player.movement_speed = 100;
+		player.velocity_angle = 0;
 
-		int i = 0;
-		int x = 0;
+		if (GetKey(olc::Key::A).bHeld) { player.velocity_angle = - PI2;    player.walk_animation = true; }
+		if (GetKey(olc::Key::D).bHeld) { player.velocity_angle = + PI2;    player.walk_animation = true; }
+		if (GetKey(olc::Key::W).bHeld) { player.velocity_angle +=  0;      player.walk_animation = true; }
+		if (GetKey(olc::Key::S).bHeld) { player.velocity_angle += PI;      player.walk_animation = true; }
 
-		if (GetKey(olc::Key::A).bReleased) { i = 0; };
-		if (GetKey(olc::Key::A).bReleased) { i = 0; };
-		if (GetKey(olc::Key::A).bReleased) { x = 0; };
-		if (GetKey(olc::Key::A).bReleased) { x = 0; };
+		if (GetKey(olc::Key::W).bHeld && (GetKey(olc::Key::D).bHeld || GetKey(olc::Key::A).bHeld))
+		{
+			player.velocity_angle = player.velocity_angle / 2;
+		}
+		if (GetKey(olc::Key::S).bHeld && (GetKey(olc::Key::D).bHeld || GetKey(olc::Key::A).bHeld))
+		{
+			player.velocity_angle = (player.velocity_angle - PI) / -2 + PI;
+		}
 
-		if (GetKey(olc::Key::A).bHeld) { player.x += player.delta_y; player.y -= player.delta_x;   player.walk_animation = true; i = 1; }
-		if (GetKey(olc::Key::D).bHeld) { player.x -= player.delta_y; player.y += player.delta_x;   player.walk_animation = true; i = -1; }
-		if (GetKey(olc::Key::W).bHeld) { player.x += player.delta_x; player.y += player.delta_y;   player.walk_animation = true; x = 1; }
-		if (GetKey(olc::Key::S).bHeld) { player.x -= player.delta_x; player.y -= player.delta_y;   player.walk_animation = true; x = -1; }
+		if (GetKey(olc::Key::A).bHeld || GetKey(olc::Key::D).bHeld || GetKey(olc::Key::W).bHeld || GetKey(olc::Key::S).bHeld) 
+		{
 
-		float stop;
+			player.velocity.x = cos(player.angle + player.velocity_angle) * player.movement_speed * tc;
+			player.velocity.y = sin(player.angle + player.velocity_angle) * player.movement_speed * tc;
+			player.x += player.velocity.x;
+			player.y += player.velocity.y;
+		}
+
 		// Animation for walking
 		if (player.walk_animation == true) {
-			player.walk_animation_speed = 1;
-			player.walk_animation_waveLength = 4;
-			lineYV = (sin(DR * player.moved_Distance - PI2) + 1) / player.walk_animation_waveLength;
+			wall.offset = (sin(DR * player.moved_Distance - PI2) + 1) / player.walk_animation_waveLength;
 			player.moved_Distance += player.walk_animation_speed * 1000 * tc;
-			stop = lineYV / 2.5;
-			animation = 1;
+			player.walk_animation = false;
 		}
-
-		if (player.walk_animation == false && lineYV > 0) 
-		{
-			lineYV -= 2.5 * tc; if (lineYV < 0) { lineYV = 0; }
-			animation -= (1 / stop) * tc; if (animation < 0) { animation = 1; }
-			player.x += x * player.delta_x * animation; player.y += x * player.delta_y * animation;
-			player.x += i * player.delta_y; player.y -= i * player.delta_x;
-		}
-
-		// sets pdx and pdy depending on player angle
-		player.delta_x = cos(player.angle) * player.movement_speed * tc;
-		player.delta_y = sin(player.angle) * player.movement_speed * tc;
-		player.walk_animation = false;
-
 		//------------------------------------------------------------------------------------------------------------------
 
 		// -- ROTATIONAL MOVEMENT --
@@ -134,32 +127,54 @@ class Example : public olc::PixelGameEngine
 		rotational_Movement_Speed.x = abs(pMouseCoordinates.x - GetMouseX()) * tc * player.xSensitivity;
 		rotational_Movement_Speed.y = abs(pMouseCoordinates.y - GetMouseY()) * tc * player.ySensitivity;
 
-		if (( pMouseCoordinates.x > GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth() ) || GetKey(olc::Key::LEFT).bHeld)
+		// rotation i x-led
+		if (( pMouseCoordinates.x > GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth()))
 		{ 
-			player.angle -= rotational_Movement_Speed.x; if (player.angle < DR)         player.angle += 2 * PI;
+			player.angle -= rotational_Movement_Speed.x;      if (player.angle < DR)      player.angle += 2 * PI;
 		} 
+		else if (GetKey(olc::Key::LEFT).bHeld) { player.angle -= 10 * tc * player.xSensitivity;  if (player.angle < DR)      player.angle += 2 * PI; }
+
 		if (pMouseCoordinates.x < GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth() || GetKey(olc::Key::RIGHT).bHeld)
 		{ 
-			player.angle += rotational_Movement_Speed.x; if (player.angle > 359 * DR)   player.angle -= 2 * PI;
+			player.angle += rotational_Movement_Speed.x;   if (player.angle > 359 * DR)   player.angle -= 2 * PI;
 		}
+		else if (GetKey(olc::Key::RIGHT).bHeld) { player.angle += 10 * tc * player.xSensitivity;  if (player.angle > 359 * DR)   player.angle -= 2 * PI;}
 
+		// rotation i y-led
 		if ((pMouseCoordinates.y > GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::DOWN).bHeld) { 
-			wall.offset += rotational_Movement_Speed.y; if (wall.offset > 160 + 500) { wall.offset = 160 + 500; }
+			wall.angle += rotational_Movement_Speed.y; if (wall.angle > 160 + 500) { wall.angle = 160 + 500; }
 		}
+		else if (GetKey(olc::Key::DOWN).bHeld) { wall.angle += 10 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
+
 		if ((pMouseCoordinates.y < GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::UP).bHeld) {
-			wall.offset -= rotational_Movement_Speed.y; if (wall.offset < 160 - 500) { wall.offset = 160 - 500; }
+			wall.angle -= rotational_Movement_Speed.y; if (wall.angle < 160 - 500) { wall.angle = 160 - 500; }
 		}
+		else if (GetKey(olc::Key::UP).bHeld) { wall.angle -= 10 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
 
 		// saves mouse coordinates
 		pMouseCoordinates = { (float)GetMouseX(), (float)GetMouseY() };
 
 		// -- SET WORLD LIMITS -- 
+		DrawLinePro(player.x, player.y, player.x + cos(PI2 / 2) * 50, player.y + sin(PI2 / 2) * 50, 4, olc::GREEN);
+		DrawLinePro(player.x, player.y, player.x + cos(PI2 + PI2/2) * 50, player.y + sin(PI2 + PI2/2) * 50, 4, olc::GREEN);
+		DrawLinePro(player.x, player.y, player.x + cos(PI + PI2/2) * 50, player.y + sin(PI + PI2/2) * 50, 4, olc::GREEN);
+		DrawLinePro(player.x, player.y, player.x + cos(PI3 + PI2/2) * 50, player.y + sin(PI3 + PI2/2) * 50, 4, olc::GREEN);
+
+		DrawLinePro(player.x, player.y, player.x, player.y + sin(PI2) * 50, 4, olc::GREEN);
+		DrawLinePro(player.x, player.y, player.x, player.y + sin(PI3) * 50, 4, olc::GREEN);
+		DrawLinePro(player.x, player.y, player.x + cos(0) * 50, player.y, 4, olc::GREEN);
+		DrawLinePro(player.x, player.y, player.x + cos(PI) * 20, player.y, 4, olc::GREEN);
+
+
+
+
 		float wallLimit = player.width / 2;
 		int mapPosX = (int)player.previous_x >> 6, mapPosY = (int)player.previous_y >> 6, mapPos = mapPosY * 8 + mapPosX;
 		float leftLength = abs(player.x - mapPosX * 64), rigthLength = abs(player.x - (mapPosX + 1) * 64);
 		float upLength = abs(player.y - mapPosY * 64), downLength = abs(player.y - (mapPosY + 1) * 64);
 
-		if (leftLength < wallLimit && map[mapPos - 1] > 0) { player.x = player.previous_x; }
+		if ((player.x + cos(PI) * 20) < mapPosX * 64 && map[mapPos - 1] > 0) { player.x = player.previous_x; }
+
 		if (rigthLength < wallLimit && map[mapPos + 1] > 0) { player.x = player.previous_x; }
 		if (upLength < wallLimit && map[mapPos - mapWidth] > 0) { player.y = player.previous_y; }
 		if (downLength < wallLimit && map[mapPos + mapWidth] > 0) { player.y = player.previous_y; }
@@ -263,7 +278,7 @@ class Example : public olc::PixelGameEngine
 			else if (disH < disV) { rx = hx; ry = hy; disT = disH; kontrast = 0; color = color1;}
 
 			if (color == 1) { colorV[0] = 255; colorV[1] = 22; colorV[2] = 100; }
-			else if (color == 2) { color = color2; colorV[0] = 100; colorV[1] = 255; colorV[2] = 160; }
+			else if (color == 2) { colorV[0] = 100; colorV[1] = 255; colorV[2] = 160; }
 			else { colorV[0] = 100; colorV[1] = 255; colorV[2] = 230; }
 
 			DrawLine(player.x, player.y, rx, ry, olc::DARK_RED);
@@ -271,7 +286,7 @@ class Example : public olc::PixelGameEngine
 			//-- DRAW 3D WORLD --
 			float ca = player.angle - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
 			float lineH = (mapS * 320) / disT;                                                                                  //Line Height
-			float lineO = wall.offset - lineH / (2 + lineYV);                                                                        //Line Offset
+			float lineO = wall.angle - lineH / (2 + wall.offset);                                                                        //Line Offset
 			float alphaV = 255 * 64 / disT; if (disT < 64) { alphaV = 255; }
 
 			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
@@ -310,9 +325,17 @@ class Example : public olc::PixelGameEngine
 	}
 
 
-	float Pyth(float ax, float ay, float bx, float by)
+	float Pyth(float ax, float ay, float bx, float by)  //pythagoras sats
 	{
 		return sqrt(pow((bx - ax), 2) + pow((by - ay), 2));
+	}
+
+	Vector2D addVectors(Vector2D vektor1, Vector2D vektor2)
+	{
+		Vector2D resVector;
+		resVector.x = vektor1.x + vektor2.x;
+		resVector.y = vektor1.y + vektor2.y;
+		return resVector;
 	}
 
 
@@ -346,12 +369,15 @@ public:
 		backgroundColor(olc::DARK_GREY);
 		player.x = 300; player.y = 300; player.width = 16;
 		player.angle = PI2;
+		player.movement_speed = 100;
+		player.walk_animation_speed = 1;
+		player.walk_animation_waveLength = 4;
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		backgroundColor(olc::DARK_BLUE);
-		FillRect(512, (ScreenHeight() + 2* wall.offset - 480) / 2, ScreenWidth(), ScreenHeight()*4, olc::DARK_GREEN);
+		FillRect(512, (ScreenHeight() + 2* wall.angle - 480) / 2, ScreenWidth(), ScreenHeight()*4, olc::DARK_GREEN);
 		FillRect(0, 0, 512, 512 ,olc::Pixel (255,255,255,100));
 		DrawMap2D();
 		DrawRays2D();
