@@ -182,7 +182,6 @@ class Example : public olc::PixelGameEngine
 		int r, mx, my, mp, dof, color, color2, color1, kontrast; float  rx, ry, ra, xo, yo, disT;
 		int colorV[3];
 
-		// Elias förlåt mig för dessa variablar men jag ska fixa dem senare
 		float a = tan(60 * DR);
 	    float b = (a / 60);
 
