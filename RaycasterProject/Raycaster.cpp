@@ -292,6 +292,9 @@ class Example : public olc::PixelGameEngine
 			FillRect(r * 8.5 + 512, lineO, 9, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 
 			//PaintTextures(r, lineO, lineH, alphaV);
+			//PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV);
+
+			ra += DR; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		}
 	}
 
