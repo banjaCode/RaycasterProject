@@ -36,8 +36,6 @@ class Example : public olc::PixelGameEngine
 		float angle;
 		float offset;
 	};
-
-	// player X, player Y, player delta X, player delta y, player angle
 	
 	Vector2D pMouseCoordinates;
 	Player_Values player;
@@ -46,7 +44,7 @@ class Example : public olc::PixelGameEngine
 	// [ Draw player on 2d map ]
 	void Drawplayer()
 	{
-		FillRect(player.x - player.width / 2, player.y - player.width / 2, player.width, player.width, olc::YELLOW);
+		FillCircle(player.x, player.y, player.width/2, olc::YELLOW);
 	}
 
 	// [ Map layout ]
@@ -132,52 +130,48 @@ class Example : public olc::PixelGameEngine
 		{ 
 			player.angle -= rotational_Movement_Speed.x;      if (player.angle < DR)      player.angle += 2 * PI;
 		} 
-		else if (GetKey(olc::Key::LEFT).bHeld) { player.angle -= 10 * tc * player.xSensitivity;  if (player.angle < DR)      player.angle += 2 * PI; }
+		else if (GetKey(olc::Key::G).bHeld) { player.angle -= 1 * tc * player.xSensitivity;  if (player.angle < DR)      player.angle += 2 * PI; }
 
 		if (pMouseCoordinates.x < GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth() || GetKey(olc::Key::RIGHT).bHeld)
 		{ 
 			player.angle += rotational_Movement_Speed.x;   if (player.angle > 359 * DR)   player.angle -= 2 * PI;
 		}
-		else if (GetKey(olc::Key::RIGHT).bHeld) { player.angle += 10 * tc * player.xSensitivity;  if (player.angle > 359 * DR)   player.angle -= 2 * PI;}
+		else if (GetKey(olc::Key::J).bHeld) { player.angle += 1 * tc * player.xSensitivity;  if (player.angle > 359 * DR)   player.angle -= 2 * PI;}
 
 		// rotation i y-led
 		if ((pMouseCoordinates.y > GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::DOWN).bHeld) { 
 			wall.angle += rotational_Movement_Speed.y; if (wall.angle > 160 + 500) { wall.angle = 160 + 500; }
 		}
-		else if (GetKey(olc::Key::DOWN).bHeld) { wall.angle += 10 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
+		else if (GetKey(olc::Key::Y).bHeld) { wall.angle += 1 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
 
 		if ((pMouseCoordinates.y < GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::UP).bHeld) {
 			wall.angle -= rotational_Movement_Speed.y; if (wall.angle < 160 - 500) { wall.angle = 160 - 500; }
 		}
-		else if (GetKey(olc::Key::UP).bHeld) { wall.angle -= 10 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
+		else if (GetKey(olc::Key::H).bHeld) { wall.angle -= 1 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
 
 		// saves mouse coordinates
 		pMouseCoordinates = { (float)GetMouseX(), (float)GetMouseY() };
 
 		// -- SET WORLD LIMITS -- 
-		DrawLinePro(player.x, player.y, player.x + cos(PI2 / 2) * 50, player.y + sin(PI2 / 2) * 50, 4, olc::GREEN);
-		DrawLinePro(player.x, player.y, player.x + cos(PI2 + PI2/2) * 50, player.y + sin(PI2 + PI2/2) * 50, 4, olc::GREEN);
-		DrawLinePro(player.x, player.y, player.x + cos(PI + PI2/2) * 50, player.y + sin(PI + PI2/2) * 50, 4, olc::GREEN);
-		DrawLinePro(player.x, player.y, player.x + cos(PI3 + PI2/2) * 50, player.y + sin(PI3 + PI2/2) * 50, 4, olc::GREEN);
 
-		DrawLinePro(player.x, player.y, player.x, player.y + sin(PI2) * 50, 4, olc::GREEN);
-		DrawLinePro(player.x, player.y, player.x, player.y + sin(PI3) * 50, 4, olc::GREEN);
-		DrawLinePro(player.x, player.y, player.x + cos(0) * 50, player.y, 4, olc::GREEN);
-		DrawLinePro(player.x, player.y, player.x + cos(PI) * 20, player.y, 4, olc::GREEN);
+		Vector2D borderPos, mapPosCoordinates;
+		int mapPos;
 
+		for (int i = 0; i < 10; i++) 
+		{
+			borderPos.x = player.width / 2 * cos(36 * DR * i);
+			borderPos.y = player.width / 2 * sin(36 * DR * i);
 
+			mapPosCoordinates.x = ((int)(player.previous_x + borderPos.x) >> 6) << 6;
+			mapPosCoordinates.y = ((int)(player.previous_y + borderPos.y) >> 6) << 6;
+			mapPos = mapPosCoordinates.y * 8 / 64 + mapPosCoordinates.x / 64;
 
+			if (player.x + borderPos.x < mapPosCoordinates.x && map[mapPos - 1] > 0) { player.x = player.previous_x; }
+			if (player.x + borderPos.x > mapPosCoordinates.x + 64 && map[mapPos + 1] > 0) { player.x = player.previous_x; }
 
-		float wallLimit = player.width / 2;
-		int mapPosX = (int)player.previous_x >> 6, mapPosY = (int)player.previous_y >> 6, mapPos = mapPosY * 8 + mapPosX;
-		float leftLength = abs(player.x - mapPosX * 64), rigthLength = abs(player.x - (mapPosX + 1) * 64);
-		float upLength = abs(player.y - mapPosY * 64), downLength = abs(player.y - (mapPosY + 1) * 64);
-
-		if ((player.x + cos(PI) * 20) < mapPosX * 64 && map[mapPos - 1] > 0) { player.x = player.previous_x; }
-
-		if (rigthLength < wallLimit && map[mapPos + 1] > 0) { player.x = player.previous_x; }
-		if (upLength < wallLimit && map[mapPos - mapWidth] > 0) { player.y = player.previous_y; }
-		if (downLength < wallLimit && map[mapPos + mapWidth] > 0) { player.y = player.previous_y; }
+			if (player.y + borderPos.y < mapPosCoordinates.y && map[mapPos - 8] > 0) { player.y = player.previous_y; }
+			if (player.y + borderPos.y > mapPosCoordinates.y + 64 && map[mapPos + 8] > 0) { player.y = player.previous_y; }
+		}
 	}
 
 	// [ cast rays and draw 3D world ]
@@ -187,11 +181,11 @@ class Example : public olc::PixelGameEngine
 		int r, mx, my, mp, dof, color, color2, color1, kontrast; float  rx, ry, ra, xo, yo, disT;
 		int colorV[3];
 
-		ra = player.angle - DR * 30;
+		ra = player.angle - DR * 60;
 		if (ra < 0) { ra += 2 * PI; }
 		if (ra > 2 * PI) { ra -= 2 * PI; }
 
-		for (r = 0; r < 1024; r++)
+		for (r = 0; r < 120; r++)
 		{
 			//--  CHECK HORIZONTAL LINES --
 			dof = 0;
@@ -289,10 +283,10 @@ class Example : public olc::PixelGameEngine
 			float lineO = wall.angle - lineH / (2 + wall.offset);                                                                        //Line Offset
 			float alphaV = 255 * 64 / disT; if (disT < 64) { alphaV = 255; }
 
-			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
+			FillRect(r * 8.5 + 512, lineO, 9, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 			//PaintTextures(r, lineO, lineH, alphaV);
 
-			ra += DR / (256 / 15); if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
+			ra += DR; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		}
 	}
 
