@@ -284,32 +284,34 @@ class Example : public olc::PixelGameEngine
 			float alphaV = 255 * 64 / disT; if (disT < 64) { alphaV = 255; }
 
 			FillRect(r * 8.5 + 512, lineO, 9, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
-			//PaintTextures(r, lineO, lineH, alphaV);
+			//PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV);
 
 			ra += DR; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		}
 	}
 
-	void PaintTextures(int r, float lineO, float lineH,int alphaV) {
+	void PaintTextures(int r , float lineO, float lineH,int alphaV, int colorV[3]) {
 		int const size = (8);
 		int texture[size*size] =
 		{
 			 1,1,1,1,1,1,1,1,
 			 1,0,0,0,0,0,0,1,
-			 1,0,0,0,0,1,0,1,
+			 1,1,0,0,0,1,0,1,
 			 1,0,0,0,0,0,0,1,
 			 1,0,0,0,0,0,0,1,
 			 1,0,0,0,0,0,0,1,
 			 1,0,0,0,0,0,0,1,
 			 1,1,1,1,1,1,1,1,
 		};
-		int pixelHight = lineH / size;
-		for (int i = 0; i <= size; i++) {
-			int coulor = 233;
-			if (i > 4) {
-				coulor = 100;
+		float pixelHight = lineH / size;
+		for (int i = 0; i < size; i++) {
+			if ((texture[i * size + 1]) == 1) {
+				int coulor[3] = { colorV[0],colorV[1],colorV[3] };
+				FillRect(r, lineO + (pixelHight * i), 1, pixelHight, olc::Pixel(coulor[0], coulor[1], coulor[2], alphaV));
+			}else if ((texture[i * size + 1]) == 0) {
+				int coulor[3] = { colorV[1],colorV[0],colorV[3] };
+				FillRect(r, lineO + (pixelHight * i), 1, pixelHight, olc::Pixel(coulor[0], coulor[1], coulor[2], alphaV));
 			}
-			FillRect(r * 1 + 512, lineO+(pixelHight*i), 1, pixelHight, olc::Pixel(coulor, 22, 100, alphaV));
 		}
 	}
 
