@@ -130,24 +130,24 @@ class Example : public olc::PixelGameEngine
 		{ 
 			player.angle -= rotational_Movement_Speed.x;      if (player.angle < DR)      player.angle += 2 * PI;
 		} 
-		else if (GetKey(olc::Key::G).bHeld) { player.angle -= 1 * tc * player.xSensitivity;  if (player.angle < DR)      player.angle += 2 * PI; }
+		else if (GetKey(olc::Key::G).bHeld) { player.angle -= 5 * tc * player.xSensitivity;  if (player.angle < DR)      player.angle += 2 * PI; }
 
 		if (pMouseCoordinates.x < GetMouseX() && GetMouseX() > 512 && GetMouseX() < ScreenWidth() || GetKey(olc::Key::RIGHT).bHeld)
 		{ 
 			player.angle += rotational_Movement_Speed.x;   if (player.angle > 359 * DR)   player.angle -= 2 * PI;
 		}
-		else if (GetKey(olc::Key::J).bHeld) { player.angle += 1 * tc * player.xSensitivity;  if (player.angle > 359 * DR)   player.angle -= 2 * PI;}
+		else if (GetKey(olc::Key::J).bHeld) { player.angle += 5 * tc * player.xSensitivity;  if (player.angle > 359 * DR)   player.angle -= 2 * PI;}
 
 		// rotation i y-led
 		if ((pMouseCoordinates.y > GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::DOWN).bHeld) { 
 			wall.angle += rotational_Movement_Speed.y; if (wall.angle > 160 + 500) { wall.angle = 160 + 500; }
 		}
-		else if (GetKey(olc::Key::Y).bHeld) { wall.angle += 1 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
+		else if (GetKey(olc::Key::Y).bHeld) { wall.angle += 5 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
 
 		if ((pMouseCoordinates.y < GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::UP).bHeld) {
 			wall.angle -= rotational_Movement_Speed.y; if (wall.angle < 160 - 500) { wall.angle = 160 - 500; }
 		}
-		else if (GetKey(olc::Key::H).bHeld) { wall.angle -= 1 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
+		else if (GetKey(olc::Key::H).bHeld) { wall.angle -= 5 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
 
 		// saves mouse coordinates
 		pMouseCoordinates = { (float)GetMouseX(), (float)GetMouseY() };
@@ -180,18 +180,15 @@ class Example : public olc::PixelGameEngine
 	{
 		// dof = depth off field, changes how far the ray goes
 		int r, mx, my, mp, dof, color, color2, color1, kontrast; float  rx, ry, ra, xo, yo, disT;
+		float foW = 359, rayAngleIncrease;
 		int colorV[3];
 
 		// Elias förlåt mig för dessa variablar men jag ska fixa dem senare
-		float a = tan(60 * DR);
-	    float b = (a / 60);
 
-		for (r = 0; r < 120; r++)
+		for (r = 0; r < 1025; r++)
 		{
-		    float c = -a + b * r;
-	
-			ra = player.angle + atan(c);  if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
-
+		    rayAngleIncrease = atan(-tan(foW * DR / 2) + (tan(foW * DR / 2) / 512) * r);
+			ra = player.angle + rayAngleIncrease;  if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 			
 			//--  CHECK HORIZONTAL LINES --
 			dof = 0;
@@ -289,12 +286,11 @@ class Example : public olc::PixelGameEngine
 			float lineO = wall.angle - lineH / (2 + wall.offset);                                                                        //Line Offset
 			float alphaV = 255 * 64 / disT; if (disT < 64) { alphaV = 255; }
 
-			FillRect(r * 8.5 + 512, lineO, 9, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
+			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 
 			//PaintTextures(r, lineO, lineH, alphaV);
 			//PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV);
 
-			ra += DR; if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
 		}
 	}
 
