@@ -181,7 +181,7 @@ class Example : public olc::PixelGameEngine
 		// dof = depth off field, changes how far the ray goes
 		int r, mx, my, mp, dof, color, color2, color1, kontrast; float  rx, ry, ra, xo, yo, disT;
 		int mp2, mp3;
-		float foW = 359, rayAngleIncrease;
+		float foW = 60, rayAngleIncrease;
 		int colorV[3];
 
 		// Elias förlåt mig för dessa variablar men jag ska fixa dem senare
