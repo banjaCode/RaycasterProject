@@ -294,7 +294,7 @@ class Example : public olc::PixelGameEngine
 		}
 	}
 
-	int Textures() 
+	void Textures() 
 	{
 		int texture[64] =
 		{
