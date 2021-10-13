@@ -286,15 +286,15 @@ class Example : public olc::PixelGameEngine
 			float lineO = wall.angle - lineH / (2 + wall.offset);                                                                        //Line Offset
 			float alphaV = 255 * 64 / disT; if (disT < 64) { alphaV = 255; }
 
-			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
+			//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 
 			//PaintTextures(r, lineO, lineH, alphaV);
-			//PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV);
+			PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV,rx,ry,mp);
 
 		}
 	}
 
-	void PaintTextures(int r , float lineO, float lineH,int alphaV, int colorV[3]) {
+	void PaintTextures(int r , float lineO, float lineH,int alphaV, int colorV[3], int rayPosX, int rayPosY, int mapPos) {
 		int const size = (8);
 		int texture[size*size] =
 		{
