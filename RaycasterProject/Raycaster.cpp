@@ -320,6 +320,12 @@ class Example : public olc::PixelGameEngine
 	}
 
 	void PaintTextures(int r, float lineO, float lineH,int alphaV, int colorV[3], int rayPosX, int rayPosY, int mapPos) {
+
+		float mapPosX = mapPos - mapPos / 8;
+		float mapPosY = (mapPos / 8) * 8;
+		float textureX = rayPosX - mapPosX;
+		float textureY = rayPosY - mapPosY;
+
 		int const size = 8;
 		int colour[3];
 		int texture[size*size] =
