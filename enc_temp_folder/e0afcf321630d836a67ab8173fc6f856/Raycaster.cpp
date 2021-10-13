@@ -180,7 +180,6 @@ class Example : public olc::PixelGameEngine
 	{
 		// dof = depth off field, changes how far the ray goes
 		int r, mx, my, mp, dof, color, color2, color1, kontrast; float  rx, ry, ra, xo, yo, disT;
-		int mp2, mp3;
 		float foW = 60, rayAngleIncrease;
 		int colorV[3];
 
@@ -222,7 +221,6 @@ class Example : public olc::PixelGameEngine
 				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapWidth + mx;
 				if (mp > 0 && mp <= (mapWidth * mapHeight) && map[mp] > 0) 
 				{ 
-					mp2 = mp;
 					hx = rx; hy = ry; 
 					disH = Pyth(player.x, player.y, hx, hy); 
 					color1 = map[mp];
@@ -262,7 +260,6 @@ class Example : public olc::PixelGameEngine
 				mx = (int)(rx) >> 6; my = (int)(ry) >> 6; mp = my * mapWidth + mx;
 				if (mp > 0 && mp <= (mapWidth * mapHeight) && map[mp] > 0) 
 				{ 
-					mp3 = mp;
 					vx = rx; vy = ry;
 					disV = Pyth(player.x, player.y, vx, vy);
 					color2 = map[mp]; 
@@ -274,14 +271,8 @@ class Example : public olc::PixelGameEngine
 			if (disV < disH)  // set ray distans depending on which is longer
 			{
 				rx = vx; ry = vy; disT = disV; kontrast = 10; color = color2;
-				mp = mp3;
 			}
-			else if (disH < disV) 
-			{
-				rx = hx; ry = hy; disT = disH;
-				kontrast = 0; color = color1;
-				mp = mp2;
-			}
+			else if (disH < disV) { rx = hx; ry = hy; disT = disH; kontrast = 0; color = color1;}
 
 			if (color == 1) { colorV[0] = 255; colorV[1] = 22; colorV[2] = 100; }
 			else if (color == 2) { colorV[0] = 100; colorV[1] = 255; colorV[2] = 160; }
@@ -303,7 +294,7 @@ class Example : public olc::PixelGameEngine
 		}
 	}
 
-	int Textures() 
+	void Textures() 
 	{
 		int texture[64] =
 		{
@@ -333,7 +324,6 @@ class Example : public olc::PixelGameEngine
 			 1,0,0,0,0,0,0,1,
 			 1,1,1,1,1,1,1,1,
 		};
-
 
 		float pixelHight = lineH / size;
 
