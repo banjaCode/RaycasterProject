@@ -1,0 +1,61 @@
+﻿'RaycasterProject.exe' (Win32): Loaded 'C:\Users\elias.tosteberg\source\repos\RaycasterProject\x64\Release\RaycasterProject.exe'. Symbols loaded.
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\ntdll.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\kernel32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\KernelBase.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\user32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\win32u.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\gdi32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\gdi32full.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\msvcp_win.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\ucrtbase.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\shlwapi.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\msvcrt.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\combase.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\rpcrt4.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\bcryptprimitives.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\msvcp140.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\dwmapi.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\crypt32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\msasn1.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\cryptsp.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\kernel.appcore.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\WinSxS\amd64_microsoft.windows.gdiplus_6595b64144ccf1df_1.1.17763.1879_none_0f5f093daddb51d3\GdiPlus.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\opengl32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\advapi32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\sechost.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\vcruntime140_1.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\vcruntime140.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\glu32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\imm32.dll'. 
+The thread 0x20ac has exited with code 0 (0x0).
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\uxtheme.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\msctf.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\oleaut32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\TextInputFramework.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\CoreUIComponents.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\CoreMessaging.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\SHCore.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\ntmarta.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\WinTypes.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\WinTypes.dll'. 
+'RaycasterProject.exe' (Win32): Unloaded 'C:\Windows\System32\WinTypes.dll'
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\DriverStore\FileRepository\nvbl.inf_amd64_5f9fb80163f547d4\nvdlistx.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\version.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\DriverStore\FileRepository\iigd_dch.inf_amd64_c6af1164d61e84b6\ig9icd64.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\shell32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\cfgmgr32.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\windows.storage.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\profapi.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\powrprof.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\dxgi.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\ResourcePolicyClient.dll'. 
+'RaycasterProject.exe' (Win32): Unloaded 'C:\Windows\System32\ResourcePolicyClient.dll'
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\DriverStore\FileRepository\iigd_dch.inf_amd64_c6af1164d61e84b6\igdgmm64.dll'. 
+'RaycasterProject.exe' (Win32): Unloaded 'C:\Windows\System32\version.dll'
+'RaycasterProject.exe' (Win32): Unloaded 'C:\Windows\System32\DriverStore\FileRepository\nvbl.inf_amd64_5f9fb80163f547d4\nvdlistx.dll'
+The thread 0x3af0 has exited with code 0 (0x0).
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\DriverStore\FileRepository\iigd_dch.inf_amd64_c6af1164d61e84b6\igc64.dll'. 
+'RaycasterProject.exe' (Win32): Loaded 'C:\Windows\System32\ole32.dll'. 
+The thread 0x5c5c has exited with code 0 (0x0).
+The thread 0x4890 has exited with code 0 (0x0).
+The thread 0x5144 has exited with code 0 (0x0).
