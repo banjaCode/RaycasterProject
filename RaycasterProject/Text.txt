@@ -5,3 +5,5 @@
 - Ändrat player speed till velocity x och y
 - jobbat med att fixa plroblem med diagonal rörelse
 - ändrat variabel namn
+
+2021-10-08
