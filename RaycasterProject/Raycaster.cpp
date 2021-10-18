@@ -157,11 +157,11 @@ class Example : public olc::PixelGameEngine
 		Vector2D borderPos, mapPosCoordinates;
 		int mapPos;
 
-		// ritar en cirkel runt spelaren och kollar om någon väg rör cirkeln
+		// ritar en cirkel runt spelaren och kollar om någon vägg rör cirkeln
 		for (int i = 0; i < 10; i++) 
 		{
-			borderPos.x = player.width / 2 * cos(36 * DR * i);
-			borderPos.y = player.width / 2 * sin(36 * DR * i);
+			borderPos.x = player.width / 2 * cos(360 / 10  * DR * i);
+			borderPos.y = player.width / 2 * sin(360 / 10  * DR * i);
 
 			mapPosCoordinates.x = ((int)(player.previous_x + borderPos.x) >> 6) << 6;
 			mapPosCoordinates.y = ((int)(player.previous_y + borderPos.y) >> 6) << 6;
