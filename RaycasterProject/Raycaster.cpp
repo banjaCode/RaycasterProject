@@ -283,9 +283,12 @@ class Example : public olc::PixelGameEngine
 				mp = mp2;
 			}
 
-			if (color == 1) { colorV[0] = 255; colorV[1] = 22; colorV[2] = 100; }
-			else if (color == 2) { colorV[0] = 100; colorV[1] = 255; colorV[2] = 160; }
-			else { colorV[0] = 100; colorV[1] = 255; colorV[2] = 230; }
+			switch (color)
+			{
+			case 1: colorV[0] = 255; colorV[1] = 22; colorV[2] = 100; break;
+			case 2: colorV[0] = 100; colorV[1] = 255; colorV[2] = 160; break;
+			default: colorV[0] = 100; colorV[1] = 255; colorV[2] = 230; break;
+			}
 
 			DrawLine(player.x, player.y, rx, ry, olc::DARK_RED);
 
@@ -295,10 +298,10 @@ class Example : public olc::PixelGameEngine
 			float lineO = wall.angle - lineH / (2 + wall.offset);                                                                        //Line Offset
 			float alphaV = 255 / (disT * 0.0085 + 1);
 
-			//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
+			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 
 			//PaintTextures(r, lineO, lineH, alphaV);
-			PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV,rx,ry,mp);
+			//PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV,rx,ry,mp);
 
 		}
 	}
