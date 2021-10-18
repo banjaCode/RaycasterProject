@@ -320,13 +320,40 @@ class Example : public olc::PixelGameEngine
 	}
 
 	void PaintTextures(int r, float lineO, float lineH,int alphaV, int colorV[3], int rayPosX, int rayPosY, int mapPos) {
-
-		int mapPosX = (mapPos - (int)(mapPos / 8) * 8 )*64;
-		int mapPosY = (int)(mapPos / 8)*64;
+		int const size = 8;
+		int mapPosX = (mapPos - (mapPos / 8) * 8 )*64;
+		int mapPosY = (mapPos / 8)*64;
 		float textureX = rayPosX - mapPosX;
 		float textureY = rayPosY - mapPosY;
+		int facing = 0;
+		int  column = 1;
+		if (rayPosY == mapPosY) //uppifrån id 1
+		{
+			facing = 1;
+		}
+		else if (rayPosY == (mapPosY+63)) //nedifrån id 2
+		{
+			facing = 2;
+			column = ((rayPosX - mapPosX)/size);
+		}
+		if (rayPosX == mapPosX) //höger id 3
+		{
+			facing = 3;
+		}
+		else if (rayPosX == (mapPosX+63)) //vänster id 4
+		{
+			facing = 4;
+		}
 
-		int const size = 8;
+
+
+
+		if (column >= 8)
+		{
+			column = 7;
+		}
+		//cout << facing;
+		
 		int colour[3];
 		int texture[size*size] =
 		{
@@ -345,13 +372,13 @@ class Example : public olc::PixelGameEngine
 
 		for (int i = 0; i < size; i++) {
 
-			if ((texture[i * size + 1]) == 1) {
+			if ((texture[(i * size) + column]) == 1) {
 
 				colour[0] = colorV[0];
 				colour[1] = colorV[1];
 				colour[2] = colorV[3];
 			}
-			else if ((texture[i * size + 1]) == 0) 
+			else
 			{
 			   colour[0] = colorV[1];
 			   colour[1] = colorV[0];
