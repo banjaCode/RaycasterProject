@@ -186,7 +186,7 @@ class Example : public olc::PixelGameEngine
 
 		// Elias förlåt mig för dessa variablar men jag ska fixa dem senare
 
-		for (r = 0; r < 1025; r++)
+		for (r = 0; r < 1024; r++)
 		{
 		    rayAngleIncrease = atan(-tan(foW * DR / 2) + (tan(foW * DR / 2) / 512) * r);
 			ra = player.angle + rayAngleIncrease;  if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
@@ -276,7 +276,7 @@ class Example : public olc::PixelGameEngine
 				rx = vx; ry = vy; disT = disV; kontrast = 10; color = color2;
 				mp = mp3;
 			}
-			else if (disH < disV) 
+			else 
 			{
 				rx = hx; ry = hy; disT = disH;
 				kontrast = 0; color = color1;
@@ -298,29 +298,13 @@ class Example : public olc::PixelGameEngine
 			float lineO = wall.angle - lineH / (2 + wall.offset);                                                                        //Line Offset
 			float alphaV = 255 / (disT * 0.0085 + 1);
 
-			FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
+			//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 
-			//PaintTextures(r, lineO, lineH, alphaV);
-			//PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV,rx,ry,mp);
+			PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV,rx,ry,mp);
 
 		}
 	}
 
-	int Textures() 
-	{
-		int texture[64] =
-		{
-			 1,1,1,1,1,1,1,1,
-			 1,0,0,0,0,0,0,1,
-			 1,1,0,0,0,1,0,1,
-			 1,0,0,0,0,0,0,1,
-			 1,0,0,0,0,0,0,1,
-			 1,0,0,0,0,0,0,1,
-			 1,0,0,0,0,0,0,1,
-			 1,1,1,1,1,1,1,1,
-		};
-
-	}
 
 	void PaintTextures(int r, float lineO, float lineH,int alphaV, int colorV[3], int rayPosX, int rayPosY, int mapPos) {
 		int const size = 8;
@@ -333,36 +317,41 @@ class Example : public olc::PixelGameEngine
 		if (rayPosY == mapPosY) //uppifrån id 1
 		{
 			facing = 1;
+			column = size-1-((rayPosX - mapPosX) / size);
 		}
-		else if (rayPosY == (mapPosY+63)) //nedifrån id 2
+		else if (rayPosY == (mapPosY + 63)) //nedifrån id 2
 		{
 			facing = 2;
-			column = ((rayPosX - mapPosX)/size);
+			column = ((rayPosX - mapPosX) / size);
 		}
-		if (rayPosX == mapPosX) //höger id 3
+		else
 		{
-			facing = 3;
-		}
-		else if (rayPosX == (mapPosX+63)) //vänster id 4
-		{
-			facing = 4;
+			if (rayPosX == mapPosX) //höger id 3
+			{
+				facing = 3;
+				column = ((rayPosY - mapPosY) / size);
+			}
+			else //Anta vänster id 4, alla övriga testade
+			{
+				facing = 4;
+				column = size - 1 - ((rayPosY - mapPosY) / size);
+			}
 		}
 
-
+		//cout << facing;
 
 
 		if (column >= 8)
 		{
 			column = 7;
 		}
-		//cout << facing;
 		
 		int colour[3];
 		int texture[size*size] =
 		{
 			 1,1,1,1,1,1,1,1,
 			 1,0,0,0,0,0,0,1,
-			 1,1,0,0,0,1,0,1,
+			 1,0,0,0,0,0,0,1,
 			 1,0,0,0,0,0,0,1,
 			 1,0,0,0,0,0,0,1,
 			 1,0,0,0,0,0,0,1,
