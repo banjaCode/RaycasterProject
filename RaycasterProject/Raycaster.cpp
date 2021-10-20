@@ -309,11 +309,12 @@ class Example : public olc::PixelGameEngine
 	void PaintTextures(int r, float lineO, float lineH,int alphaV, int colorV[3], int rayPosX, int rayPosY, int mapPos) {
 		int const size = 8;
 		int mapPosX = (mapPos - (mapPos / 8) * 8 )*64;
-		int mapPosY = (mapPos / 8)*64;
+		int mapPosY = (mapPos / 8) * 64;
 		float textureX = rayPosX - mapPosX;
 		float textureY = rayPosY - mapPosY;
 		int facing = 0;
 		int  column = 1;
+
 		if (rayPosY == mapPosY) //uppifrån id 1
 		{
 			facing = 1;
@@ -337,8 +338,12 @@ class Example : public olc::PixelGameEngine
 				column = size - 1 - ((rayPosY - mapPosY) / size);
 			}
 		}
+		
+		if (GetKey(olc::Key::Q).bHeld) 
+		{
+			cout << mapPosX << "  " << mapPosY << " | ";
+		}
 
-		//cout << facing;
 
 
 		if (column >= 8)
