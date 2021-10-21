@@ -403,7 +403,7 @@ class Example : public olc::PixelGameEngine
 
 				color = wallColor[textur[0][(i * size) + column]];
 
-				FillRect(r, lineO + (pixelHeight * i), 1, pixelHeight + 2, color);
+				FillRect(r, lineO + (pixelHeight * i), 1, pixelHeight , color);
 				//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 			}
 		}
