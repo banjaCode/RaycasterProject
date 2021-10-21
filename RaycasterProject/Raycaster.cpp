@@ -52,12 +52,12 @@ class Example : public olc::PixelGameEngine
 	int map[mapS] =
 	{
 		 1,1,1,1,3,1,1,1,
-		 2,0,0,0,0,0,0,2,
-		 1,0,0,0,0,0,0,1,
-		 1,0,0,0,3,0,0,3,
-		 1,0,0,0,3,0,0,3,
+		 2,0,2,0,0,0,0,2,
+		 1,0,1,0,0,0,0,1,
+		 1,0,0,0,3,0,1,3,
+		 1,0,1,0,3,0,0,3,
 		 3,0,0,0,0,0,0,1,
-		 1,0,0,0,0,0,0,2,
+		 1,0,1,0,0,0,0,2,
 		 1,1,1,2,1,2,1,1,
 	};
 
@@ -179,7 +179,8 @@ class Example : public olc::PixelGameEngine
 	void DrawRays2D()
 	{
 		// dof = depth off field, changes how far the ray goes
-		int r, mx, my, mp, dof, color, color2, color1, kontrast; float  rx, ry, ra, xo, yo, disT;
+		int r, mx, my, mp, dof, color, color2, color1, kontrast; float ra, xo, yo, disT;
+		double  rx, ry;
 		int mp2, mp3;
 		float foW = 60, rayAngleIncrease;
 		int colorV[3];
@@ -300,91 +301,93 @@ class Example : public olc::PixelGameEngine
 
 			//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 
+			if (GetKey(olc::Key::Q).bHeld)
+			{
+				cout << "X: " << rx << " Y: " << ry << " | ";
+			}
+
+
 			PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast,colorV,rx,ry,mp);
 
 		}
 	}
 
+	olc::Pixel wallColor[5] =
+	{
+		olc::BLACK,
+		olc::YELLOW,
+		olc::BLUE,
+		olc::DARK_RED,
+		olc::DARK_GREEN
+	};
 
-	void PaintTextures(int r, float lineO, float lineH,int alphaV, int colorV[3], int rayPosX, int rayPosY, int mapPos) {
+	void PaintTextures(int r, float lineO, float lineH, int alphaV, int colorV[3], int rayPosX, int rayPosY, int mapPos) {
+		  round(rayPosY);
+
 		int const size = 8;
-		int mapPosX = (mapPos - (mapPos / 8) * 8 )*64;
-		int mapPosY = (mapPos / 8) * 64;
+		float mapPosX = (mapPos - (mapPos / 8) * 8 ) * 64;
+		float mapPosY = (mapPos / 8) * 64;
 		float textureX = rayPosX - mapPosX;
 		float textureY = rayPosY - mapPosY;
 		int facing = 0;
-		int  column = 1;
+		int column = 0;
 
-		if (rayPosY == mapPosY) //uppifrån id 1
+		//if (rayPosX == mapPosX - 0.0001) { round(rayPosX); }
+
+		if (rayPosY == mapPosY && rayPosX != mapPosX && rayPosX != mapPosX + 63) //uppifrån id 1
 		{
 			facing = 1;
-			column = size-1-((rayPosX - mapPosX) / size);
+			column = 1.00000 / 64 * textureX * size;
 		}
-		else if (rayPosY == (mapPosY + 63)) //nedifrån id 2
+		else if (rayPosY == mapPosY + 63 && rayPosX != mapPosX + 63 && rayPosX != mapPosX) //nedifrån id 2
 		{
 			facing = 2;
-			column = ((rayPosX - mapPosX) / size);
+			column = 1.00000 / 64 * (64 - textureX) * size;
 		}
-		else
+		if (rayPosX == mapPosX && rayPosY != mapPosY && rayPosY != mapPosY + 63) //höger id 3
 		{
-			if (rayPosX == mapPosX) //höger id 3
-			{
-				facing = 3;
-				column = ((rayPosY - mapPosY) / size);
-			}
-			else //Anta vänster id 4, alla övriga testade
-			{
-				facing = 4;
-				column = size - 1 - ((rayPosY - mapPosY) / size);
-			}
+			facing = 3;
+			column = 1.00000 / 64 * textureY * size;
 		}
+		else if (rayPosX == mapPosX + 63 && rayPosY != mapPosY + 63 && rayPosY != mapPosY) //Anta vänster id 4, alla övriga testade
+		{
+			facing = 4;
+			column = 1.00000 / 64 * (64 - textureY) * size;
+		}
+		if (column >= 8) {  column = 7; }
+
 		
-		if (GetKey(olc::Key::Q).bHeld) 
-		{
-			cout << mapPosX << "  " << mapPosY << " | ";
-		}
 
-
-
-		if (column >= 8)
-		{
-			column = 7;
-		}
 		
 		int colour[3];
 		int texture[size*size] =
 		{
 			 1,1,1,1,1,1,1,1,
-			 1,0,0,0,0,0,0,1,
-			 1,0,0,0,0,0,0,1,
-			 1,0,0,0,0,0,0,1,
-			 1,0,0,0,0,0,0,1,
-			 1,0,0,0,0,0,0,1,
-			 1,0,0,0,0,0,0,1,
+			 2,3,4,2,4,2,2,1,
+			 4,1,4,3,1,3,0,1,
+			 1,3,2,2,4,2,2,1,
+			 3,4,3,3,1,1,2,1,
+			 1,4,4,3,2,2,1,1,
+			 1,2,3,3,2,4,2,1,
 			 1,1,1,1,1,1,1,1,
 		};
 
+		olc::Pixel color;
 
 		float pixelHight = lineH / size;
 
-		for (int i = 0; i < size; i++) {
+		if (facing != 0) {
+			for (int i = 0; i < size; i++) {
 
-			if ((texture[(i * size) + column]) == 1) {
+				color = wallColor[texture[(i * size) + column]];
 
-				colour[0] = colorV[0];
-				colour[1] = colorV[1];
-				colour[2] = colorV[3];
+				FillRect(r, lineO + (pixelHight * i), 1, pixelHight + 2, color);
+				//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 			}
-			else
-			{
-			   colour[0] = colorV[1];
-			   colour[1] = colorV[0];
-			   colour[2] = colorV[3];
-			}
-			FillRect(r, lineO + (pixelHight * i), 1, pixelHight + 2, olc::Pixel(colour[0], colour[1], colour[2], alphaV));
-			//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 		}
 	}
+
+
 
 
 	void backgroundColor(olc::Pixel color) {
@@ -445,7 +448,7 @@ public:
 	{
 		backgroundColor(olc::DARK_BLUE);
 		FillRect(512, (ScreenHeight() + 2* wall.angle - 480) / 2, ScreenWidth(), ScreenHeight()*4, olc::DARK_GREEN);
-		FillRect(0, 0, 512, 512 ,olc::Pixel (255,255,255,100));
+		FillRect(0, 0, 512, 512 ,olc::Pixel (255 ,255 ,255 ,100));
 		DrawMap2D();
 		DrawRays2D();
 		Drawplayer();
