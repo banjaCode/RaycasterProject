@@ -70,19 +70,7 @@ class Example : public olc::PixelGameEngine
 	};
 
 
-	olc::Pixel wallColor[6] =
-	{
-		olc::BLACK,
-		olc::YELLOW,
-		olc::BLUE,
-		olc::DARK_RED,
-		olc::DARK_GREEN,
-		olc::MAGENTA
-	};
-
-
 	int textur[3][16 * 16]
-	int textur[2][16 * 16]
 	{
 		{
             1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
@@ -161,10 +149,10 @@ class Example : public olc::PixelGameEngine
 	const static int mapWidth = 16, mapHeight = 16, mapS2 = 256;
 	int map[mapS2] =
 	{
-		 1,1,1,1,2,1,1,1,2,1,2,1,1,1,1,2,
-		 2,0,2,0,0,0,0,2,2,0,2,0,0,0,0,2,
-		 1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,
-		 1,0,0,0,2,0,1,2,2,0,2,0,0,0,0,2,
+		 1,1,3,3,3,3,3,3,2,1,2,1,1,1,1,2,
+		 2,0,3,0,0,0,0,3,2,0,2,0,0,0,0,2,
+		 1,0,3,0,0,0,0,3,0,0,2,0,0,0,0,2,
+		 1,0,0,0,3,0,3,3,2,0,2,0,0,0,0,2,
 		 1,0,1,0,2,0,0,2,0,0,2,0,0,0,0,2,
 		 2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,2,
 		 1,0,1,0,0,0,0,0,0,0,2,0,0,0,0,2,
@@ -301,7 +289,7 @@ class Example : public olc::PixelGameEngine
 		int mapPosX, mapPosY, mapPos, doF, kontrast = 0; 
 		float  rayPosX, rayPosY, rayAngle, xOffset, yOffset, disT;
 
-		int rayCast = 512;
+		int rayCast = 1024;
 		int mp2, mp3;
 
 		for (int r = 0; r < rayCast; r++)
