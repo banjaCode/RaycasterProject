@@ -471,7 +471,7 @@ class Example : public olc::PixelGameEngine
 
 		olc::Sprite* sprpointer;
 		std::unique_ptr<olc::Sprite> sprTile;
-		sprTile = std::make_unique<olc::Sprite>("../../RaycasterProject/RaycasterProject/W3d_protoredbrick1.png");
+		sprTile = std::make_unique<olc::Sprite>("W3d_protoredbrick1.png");
 		olc::Pixel currentpixel;
 		int currentr;
 		int currentg;
