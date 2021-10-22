@@ -526,7 +526,6 @@ public:
 		DrawRays2D();
 		Drawplayer();
 		buttons();
-	   
 		return true;
 	}
 };
