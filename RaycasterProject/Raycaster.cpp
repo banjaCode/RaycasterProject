@@ -30,6 +30,7 @@ class Example : public olc::PixelGameEngine
 		float movement_speed;											// movment speed
 		bool walk_animation = false;									// desides if the walking animation is on
 		float walk_animation_speed, walk_animation_waveLength;			//  1: speed of sin wave in walking animation  2:amplituden på sin vågen
+		int foW;
 	};
 	struct Wall_Values 
 	{
@@ -47,6 +48,22 @@ class Example : public olc::PixelGameEngine
 		FillCircle(player.x, player.y, player.width/2, olc::YELLOW);
 	}
 
+	struct rgb_color 
+	{
+		int r, g, b;
+		string name;
+	};
+
+	rgb_color color[5] =
+	{
+		{191, 69, 43, "red"},
+		{224, 202, 22 , "yellow"},
+		{55, 216, 22 , "green"},
+		{22, 216, 203, "sky"},
+		{216, 22, 93 , "evning"}
+	};
+
+
 	olc::Pixel wallColor[6] =
 	{
 		olc::BLACK,
@@ -60,6 +77,24 @@ class Example : public olc::PixelGameEngine
 
 	int textur[2][16 * 16]
 	{
+		{
+            1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+            0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+            0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+            0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+            0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+			0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+			0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+			0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
+			0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
+		},
 		{
 			1,3,5,3,2,3,1,4,5,3,4,2,4,2,4,2,
 			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
@@ -77,24 +112,6 @@ class Example : public olc::PixelGameEngine
 			2,2,2,2,4,3,2,3,3,2,4,2,4,2,4,5,
 			2,2,2,2,4,3,2,3,3,2,4,2,4,2,4,5,
 			2,2,2,2,4,3,2,3,3,2,4,2,4,2,4,5,
-		},
-		{
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 		}
 	};
 
@@ -231,60 +248,61 @@ class Example : public olc::PixelGameEngine
 	void DrawRays2D()
 	{
 		// dof = depth off field, changes how far the ray goes
-		int r, mx, my, mp, doF, kontrast; float  rx, ry, ra, xo, yo, disT;
+		int mapPosX, mapPosY, mapPos, doF, kontrast = 0; 
+		float  rayPosX, rayPosY, rayAngle, xOffset, yOffset, disT;
+
+		int rayCast = 1024;
 		int mp2, mp3;
 
-		float foW = 60, rayAngleIncrease;
-
-		for (r = 0; r < 1024; r++)
+		for (int r = 0; r < rayCast; r++)
 		{
-		    rayAngleIncrease = atan(-tan(foW * DR / 2) + (tan(foW * DR / 2) / 512) * r);
-			ra = player.angle + rayAngleIncrease;  if (ra < 0) { ra += 2 * PI; } if (ra > 2 * PI) { ra -= 2 * PI; }
+		    float rayAngleIncrease = atan(-tan(player.foW * DR / 2) + (tan(player.foW * DR / 2) / 512) * r);
+			rayAngle = player.angle + rayAngleIncrease;  if (rayAngle < 0) { rayAngle += 2 * PI; } if (rayAngle > 2 * PI) { rayAngle -= 2 * PI; }
 			
 			//--  CHECK HORIZONTAL LINES --
 			doF = 0;
 			float disH = 1000000, hx = player.x, hy = player.y;
-			float aTan = -1 / tan(ra);	
+			float aTan = -1 / tan(rayAngle);	
 
 			bool l = false;
 
-			if (ra > PI) //looking up
+			if (rayAngle > PI) //looking up
 			{ 
-			ry = floor(player.y / 64) * 64;
-			rx = (player.y - ry) * aTan + player.x;
-			yo = -64; xo = -yo * aTan; 
+			rayPosY = floor(player.y / 64) * 64;
+			rayPosX = (player.y - rayPosY) * aTan + player.x;
+			yOffset = -64; xOffset = -yOffset * aTan; 
 
 			l = true;
 			}
 
-			else if (ra < PI)	//looking down
+			else if (rayAngle < PI)	//looking down
 			{
-				ry = floor(player.y / 64) * 64 + 64;
-				rx = (player.y - ry) * aTan + player.x;
-				yo = 64; xo = -yo * aTan; 
+				rayPosY = floor(player.y / 64) * 64 + 64;
+				rayPosX = (player.y - rayPosY) * aTan + player.x;
+				yOffset = 64; xOffset = -yOffset * aTan; 
 			} 
 
-			else if (ra == 0 || ra == PI) 	//looking straight left or right
+			else if (rayAngle == 0 || rayAngle == PI) 	//looking straight left or right
 			{
-				rx = player.x;
-				ry = player.y;
+				rayPosX = player.x;
+				rayPosY = player.y;
 				doF = 8; 
 			}
 
 			while (doF < 8) 			
 			{
-				if (l) { my = (int)(ry - 0.0001) >> 6; }
-				else { my = (int)(ry) >> 6; }
+				if (l) { mapPosY = (int)(rayPosY - 0.0001) >> 6; }
+				else { mapPosY = (int)(rayPosY) >> 6; }
 
-				mx = (int)(rx) >> 6; mp = my * mapWidth + mx;
-				if (mp > 0 && mp <= (mapWidth * mapHeight) && map[mp] > 0) 
+				mapPosX = (int)(rayPosX) >> 6; mapPos = mapPosY * mapWidth + mapPosX;
+				if (mapPos > 0 && mapPos <= (mapWidth * mapHeight) && map[mapPos] > 0) 
 				{ 
-					mp2 = mp;
-					hx = rx; hy = ry; 
+					mp2 = mapPos;
+					hx = rayPosX; hy = rayPosY; 
 					disH = Pyth(player.x, player.y, hx, hy); 
 					break; 
 				} 
-				else { rx += xo; ry += yo; doF += 1; }
+				else { rayPosX += xOffset; rayPosY += yOffset; doF += 1; }
 			}
 
 			//-- check vertical lines--
@@ -292,76 +310,73 @@ class Example : public olc::PixelGameEngine
 			float disV = 1000000, vx = player.x, vy = player.y;
 			bool f = false;
 
-			float nTan = -tan(ra);
+			float nTan = -tan(rayAngle);
 
-			if (ra > PI2 && ra < PI3) // Looking left
+			if (rayAngle > PI2 && rayAngle < PI3) // Looking left
 			{
-				rx = floor(player.x / 64) * 64.0000; 
-				ry = (player.x - rx) * nTan + player.y;
-				xo = -64; yo = -xo * nTan;
+				rayPosX = floor(player.x / 64) * 64.0000; 
+				rayPosY = (player.x - rayPosX) * nTan + player.y;
+				xOffset = -64; yOffset = -xOffset * nTan;
 				f = true;
 			}
 
-			else if (ra < PI2 || ra > PI3) // Looking right
+			else if (rayAngle < PI2 || rayAngle > PI3) // Looking right
 			{
-				rx = floor(player.x / 64) * 64 + 64;
-				ry = (player.x - rx) * nTan + player.y;
-				xo = 64; yo = -xo * nTan;
+				rayPosX = floor(player.x / 64) * 64 + 64;
+				rayPosY = (player.x - rayPosX) * nTan + player.y;
+				xOffset = 64; yOffset = -xOffset * nTan;
 			} 
 
-			else if (ra == 0 || ra == PI) //looking straight up or down
+			else if (rayAngle == 0 || rayAngle == PI) //looking straight up or down
 			{
-				rx = player.x; 
-				ry = player.y;
+				rayPosX = player.x; 
+				rayPosY = player.y;
 				doF = 8; 
 			}
 
 			while (doF < 8)
 			{
-				if (f) { mx = (int)(rx - 0.0001) >> 6; }
+				if (f) { mapPosX = (int)(rayPosX - 0.0001) >> 6; }
 				else 
 				{
-					mx = (int)(rx) >> 6;
+					mapPosX = (int)(rayPosX) >> 6;
 				}
-				my = (int)(ry) >> 6; mp = my * mapWidth + mx;
-				if (mp > 0 && mp <= (mapWidth * mapHeight) && map[mp] > 0) 
+				mapPosY = (int)(rayPosY) >> 6; mapPos = mapPosY * mapWidth + mapPosX;
+				if (mapPos > 0 && mapPos <= (mapWidth * mapHeight) && map[mapPos] > 0) 
 				{ 
-					mp3 = mp;
-					vx = rx; vy = ry;
+					mp3 = mapPos;
+					vx = rayPosX; vy = rayPosY;
 					disV = Pyth(player.x, player.y, vx, vy);
 					break; 
 				}
-				else { rx += xo; ry += yo; doF += 1; }
+				else { rayPosX += xOffset; rayPosY += yOffset; doF += 1; }
 			}
 		
 			if (disV < disH)  // set ray distans depending on which is longer
 			{
-				rx = vx; ry = vy; disT = disV; kontrast = 10;
-				mp = mp3;
+				rayPosX = vx; rayPosY = vy; disT = disV; kontrast = 10;
+				mapPos = mp3;
 			}
-			else 
+			else
 			{
-				rx = hx; ry = hy; disT = disH;
-				kontrast = 0;
-				mp = mp2;
+				rayPosX = hx; rayPosY = hy; disT = disH;
+				kontrast = 10;
+				mapPos = mp2;
 			}
 
-			DrawLine(player.x, player.y, rx, ry, olc::DARK_RED);
+			DrawLine(player.x, player.y, rayPosX, rayPosY, olc::DARK_RED);
 
 			//-- DRAW 3D WORLD --
-			float ca = player.angle - ra; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
+			float ca = player.angle - rayAngle; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
 			float lineH = (mapS * 320) / disT;                                                                                  //Line Height
-			float lineO = wall.angle - lineH / (2 + wall.offset);                                                                        //Line Offset
+			float lineOffset = wall.angle - lineH / (2 + wall.offset);                                                                   //Line Offset
 			float alphaV = 255 / (disT * 0.0085 + 1);
 
-			//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
-
-			PaintTextures(r* 1 + 512, lineO, lineH, alphaV - kontrast, rx ,ry,mp);
-
+			PaintTextures(r* 1 + 512, lineOffset, lineH, rayPosX ,rayPosY, mapPos, alphaV, kontrast);
 		}
 	}
 
-	void PaintTextures(int r, float lineO, float lineH, int alphaV, float rayPosX, float rayPosY, int mapPos) {
+	void PaintTextures(int lineX, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
 
 		int const size = 16;
 
@@ -372,38 +387,36 @@ class Example : public olc::PixelGameEngine
 		int facing = 0, column = 0;
 
 
-		if (rayPosY == mapPosY && rayPosX != mapPosX && rayPosX != mapPosX + 64) //uppifrån id 1
+		if (rayPosY == mapPosY && rayPosX != mapPosX && rayPosX != mapPosX + mapS) //uppifrån id 1
 		{
 			facing = 1;
-			column = 1.00000 / (size * size) * (rayPosX - mapPosX) * size;
+			column = 1.00000 / (size * size) * (rayPosX - mapPosX) * size * (size * size / mapS);
 		}
-		else if (rayPosY == mapPosY + 64 && rayPosX != mapPosX + 64 && rayPosX != mapPosX) //nedifrån id 2
+		else if (rayPosY == mapPosY + mapS && rayPosX != mapPosX + mapS && rayPosX != mapPosX) //nedifrån id 2
 		{
 			facing = 2;
-			column = 1.00000 / (size * size) * (64 - (rayPosX - mapPosX)) * size;
+			column = 1.00000 / (size * size) * (mapS - (rayPosX - mapPosX)) * size * (size * size / mapS);
 		}
-		if (rayPosX == mapPosX && rayPosY != mapPosY && rayPosY != mapPosY + 64) //höger id 3
+		if (rayPosX == mapPosX && rayPosY != mapPosY && rayPosY != mapPosY + mapS) //höger id 3
 		{
 			facing = 3;
-			column = 1.00000 / (size * size) * (64 - (rayPosY - mapPosY)) * size;
+			column = 1.00000 / (size * size) * (mapS - (rayPosY - mapPosY)) * size * (size * size / mapS);
 		}
-		else if (rayPosX == mapPosX + 64 && rayPosY != mapPosY + 64 && rayPosY != mapPosY) //Anta vänster id 4, alla övriga testade
+		else if (rayPosX == mapPosX + mapS && rayPosY != mapPosY + mapS && rayPosY != mapPosY) //Anta vänster id 4, alla övriga testade
 		{
 			facing = 4;
-			column = 1.00000 / (size * size) * (rayPosY - mapPosY) * size;
+			column = 1.00000 / (size * size) * (rayPosY - mapPosY) * size * (size * size / mapS);
 		}
-		if (column >= 8) {  column = 7; }
-	
-		olc::Pixel color;
+		if (column >= size) {  column = size - 1; }
 
 		float pixelHeight = lineH / size;
 
 		if (facing != 0) {
 			for (int i = 0; i < size; i++) {
 
-				color = wallColor[textur[0][(i * size) + column]];
+				int index = textur[map[mapPos] - 1][(i * size) + column];
 
-				FillRect(r, lineO + (pixelHeight * i), 1, pixelHeight + 2, color);
+				FillRect(lineX, lineOffset + (pixelHeight * i), 1, pixelHeight + 2, olc::Pixel(color[index].r, color[index].g, color[index].b, alphaV - kontrast));
 				//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 			}
 		}
@@ -459,11 +472,12 @@ public:
 	bool OnUserCreate() override
 	{
 		backgroundColor(olc::DARK_GREY);
-		player.x = 300; player.y = 300; player.width = 16;
+		player.x = 250; player.y = 250; player.width = 16;
 		player.angle = PI2;
 		player.movement_speed = 100;
 		player.walk_animation_speed = 1;
 		player.walk_animation_waveLength = 4;
+		player.foW = 60;
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
