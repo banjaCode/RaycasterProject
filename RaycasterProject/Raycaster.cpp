@@ -256,7 +256,7 @@ class Example : public olc::PixelGameEngine
 
 		for (int r = 0; r < rayCast; r++)
 		{
-		    float rayAngleIncrease = atan(-tan(player.foW * DR / 2) + (tan(player.foW * DR / 2) / 512) * r);
+		    float rayAngleIncrease = atan(-tan(player.foW * DR / 2) + (tan(player.foW * DR / 2) / (rayCast / 2)) * r);
 			rayAngle = player.angle + rayAngleIncrease;  if (rayAngle < 0) { rayAngle += 2 * PI; } if (rayAngle > 2 * PI) { rayAngle -= 2 * PI; }
 			
 			//--  CHECK HORIZONTAL LINES --
@@ -368,11 +368,13 @@ class Example : public olc::PixelGameEngine
 
 			//-- DRAW 3D WORLD --
 			float ca = player.angle - rayAngle; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
-			float lineH = (mapS * 320) / disT;                                                                                  //Line Height
+			float lineH = 64 * (64 / ((tan(player.foW / 2 * DR) * 64) / (rayCast / 2))) / disT;                                       	//Line Height (OBS: ändra * 64 ifall mapp ändras)
 			float lineOffset = wall.angle - lineH / (2 + wall.offset);                                                                   //Line Offset
 			float alphaV = 255 / (disT * 0.0085 + 1);
 
-			PaintTextures(r* 1 + 512, lineOffset, lineH, rayPosX ,rayPosY, mapPos, alphaV, kontrast);
+			
+
+			PaintTextures(r * 1 + 512, lineOffset, lineH, rayPosX ,rayPosY, mapPos, alphaV, kontrast);
 		}
 	}
 
@@ -472,12 +474,12 @@ public:
 	bool OnUserCreate() override
 	{
 		backgroundColor(olc::DARK_GREY);
-		player.x = 250; player.y = 250; player.width = 16;
+		player.x = 288; player.y = 128; player.width = 16;
 		player.angle = PI2;
 		player.movement_speed = 100;
 		player.walk_animation_speed = 1;
 		player.walk_animation_waveLength = 4;
-		player.foW = 60;
+		player.foW = 120;
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
@@ -495,7 +497,7 @@ public:
 int main()
 {
 	Example demo;
-	if (demo.Construct(1536, 512, 1, 1))
+	if (demo.Construct(512 * 3, 512, 1, 1))
 		demo.Start();
 	return 0;
 }
