@@ -63,18 +63,6 @@ class Example : public olc::PixelGameEngine
 		{216, 22, 93 , "evning"}
 	};
 
-
-	olc::Pixel wallColor[6] =
-	{
-		olc::BLACK,
-		olc::YELLOW,
-		olc::BLUE,
-		olc::DARK_RED,
-		olc::DARK_GREEN,
-		olc::MAGENTA
-	};
-
-
 	int textur[2][16 * 16]
 	{
 		{
@@ -117,6 +105,7 @@ class Example : public olc::PixelGameEngine
 
 
 	// [ Map layout ]
+	/*
 	const static int mapWidth = 8, mapHeight = 8, mapS = 64;
 	int map[mapS] =
 	{
@@ -129,6 +118,30 @@ class Example : public olc::PixelGameEngine
 		 1,0,1,0,0,0,0,2,
 		 1,1,1,2,1,2,1,1,
 	};
+	*/
+	
+	const static int mapS = 64 / 2;
+	const static int mapWidth = 16, mapHeight = 16, mapS2 = 256;
+	int map[mapS2] =
+	{
+		 1,1,1,1,2,1,1,1,2,1,2,1,1,1,1,2,
+		 2,0,2,0,0,0,0,2,2,0,2,0,0,0,0,2,
+		 1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,
+		 1,0,0,0,2,0,1,2,2,0,2,0,0,0,0,2,
+		 1,0,1,0,2,0,0,2,0,0,2,0,0,0,0,2,
+		 2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,2,
+		 1,0,1,0,0,0,0,0,0,0,2,0,0,0,0,2,
+		 1,1,1,2,0,0,1,1,2,0,2,0,0,0,0,2,
+		 1,1,1,1,2,0,1,0,2,0,2,0,0,0,0,2,
+		 2,0,2,0,0,0,0,2,2,0,0,0,0,0,0,2,
+		 1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,2,
+		 1,0,0,0,2,0,1,2,2,0,2,0,0,0,0,2,
+		 1,0,1,0,2,0,0,2,0,0,2,0,0,0,0,2,
+		 2,0,0,0,0,0,0,1,2,0,2,0,0,0,0,2,
+		 1,0,1,0,0,0,0,0,0,0,2,0,0,0,0,2,
+		 1,1,1,2,1,2,1,1,2,1,2,1,1,1,1,2,
+	};
+	
 
 	// [ Draws 2D map ]
 	void DrawMap2D()
@@ -227,20 +240,20 @@ class Example : public olc::PixelGameEngine
 		int mapPos;
 
 		// ritar en cirkel runt spelaren och kollar om någon vägg rör cirkeln
-		for (int i = 0; i < 10; i++) 
+		for (int i = 0; i < 360; i++) 
 		{
-			borderPos.x = player.width / 2 * cos(360 / 10  * DR * i);
-			borderPos.y = player.width / 2 * sin(360 / 10  * DR * i);
+			borderPos.x = player.width / 2 * cos(360 / 10 * DR * i);
+			borderPos.y = player.width / 2 * sin(360 / 10 * DR * i);
 
-			mapPosCoordinates.x = ((int)(player.previous_x + borderPos.x) >> 6) << 6;
-			mapPosCoordinates.y = ((int)(player.previous_y + borderPos.y) >> 6) << 6;
-			mapPos = mapPosCoordinates.y * 8 / 64 + mapPosCoordinates.x / 64;
+			mapPosCoordinates.x = ((int)(player.previous_x + borderPos.x) >> 5) << 5;
+			mapPosCoordinates.y = ((int)(player.previous_y + borderPos.y) >> 5) << 5;
+			mapPos = mapPosCoordinates.y * mapWidth / 32 + mapPosCoordinates.x / 32;
 
 			if (player.x + borderPos.x < mapPosCoordinates.x && map[mapPos - 1] > 0) { player.x = player.previous_x; }
-			if (player.x + borderPos.x > mapPosCoordinates.x + 64 && map[mapPos + 1] > 0) { player.x = player.previous_x; }
+			if (player.x + borderPos.x > mapPosCoordinates.x + 32 && map[mapPos + 1] > 0) { player.x = player.previous_x; }
 
-			if (player.y + borderPos.y < mapPosCoordinates.y && map[mapPos - 8] > 0) { player.y = player.previous_y; }
-			if (player.y + borderPos.y > mapPosCoordinates.y + 64 && map[mapPos + 8] > 0) { player.y = player.previous_y; }
+			if (player.y + borderPos.y < mapPosCoordinates.y && map[mapPos - 16] > 0) { player.y = player.previous_y; }
+			if (player.y + borderPos.y > mapPosCoordinates.y + 32 && map[mapPos + 16] > 0) { player.y = player.previous_y; }
 		}
 	}
 
@@ -251,7 +264,7 @@ class Example : public olc::PixelGameEngine
 		int mapPosX, mapPosY, mapPos, doF, kontrast = 0; 
 		float  rayPosX, rayPosY, rayAngle, xOffset, yOffset, disT;
 
-		int rayCast = 1024;
+		int rayCast = 512;
 		int mp2, mp3;
 
 		for (int r = 0; r < rayCast; r++)
@@ -264,37 +277,37 @@ class Example : public olc::PixelGameEngine
 			float disH = 1000000, hx = player.x, hy = player.y;
 			float aTan = -1 / tan(rayAngle);	
 
-			bool l = false;
+			bool lookingUp = false;
 
 			if (rayAngle > PI) //looking up
 			{ 
-			rayPosY = floor(player.y / 64) * 64;
+			rayPosY = floor(player.y / 32) * 32;
 			rayPosX = (player.y - rayPosY) * aTan + player.x;
-			yOffset = -64; xOffset = -yOffset * aTan; 
+			yOffset = -32; xOffset = -yOffset * aTan; 
 
-			l = true;
+			lookingUp = true;
 			}
 
 			else if (rayAngle < PI)	//looking down
 			{
-				rayPosY = floor(player.y / 64) * 64 + 64;
+				rayPosY = floor(player.y / 32) * 32 + 32;
 				rayPosX = (player.y - rayPosY) * aTan + player.x;
-				yOffset = 64; xOffset = -yOffset * aTan; 
+				yOffset = 32; xOffset = -yOffset * aTan; 
 			} 
 
 			else if (rayAngle == 0 || rayAngle == PI) 	//looking straight left or right
 			{
 				rayPosX = player.x;
 				rayPosY = player.y;
-				doF = 8; 
+				doF = 32; 
 			}
 
-			while (doF < 8) 			
+			while (doF < 32) 			
 			{
-				if (l) { mapPosY = (int)(rayPosY - 0.0001) >> 6; }
-				else { mapPosY = (int)(rayPosY) >> 6; }
+				if (lookingUp) { mapPosY = (int)(rayPosY - 0.0001) >> 5; }
+				else { mapPosY = (int)(rayPosY) >> 5; }
 
-				mapPosX = (int)(rayPosX) >> 6; mapPos = mapPosY * mapWidth + mapPosX;
+				mapPosX = (int)(rayPosX) >> 5; mapPos = mapPosY * mapWidth + mapPosX;
 				if (mapPos > 0 && mapPos <= (mapWidth * mapHeight) && map[mapPos] > 0) 
 				{ 
 					mp2 = mapPos;
@@ -308,40 +321,40 @@ class Example : public olc::PixelGameEngine
 			//-- check vertical lines--
 			doF = 0;
 			float disV = 1000000, vx = player.x, vy = player.y;
-			bool f = false;
+			bool lookingLeft = false;
 
 			float nTan = -tan(rayAngle);
 
 			if (rayAngle > PI2 && rayAngle < PI3) // Looking left
 			{
-				rayPosX = floor(player.x / 64) * 64.0000; 
+				rayPosX = floor(player.x / 32) * 32.0000; 
 				rayPosY = (player.x - rayPosX) * nTan + player.y;
-				xOffset = -64; yOffset = -xOffset * nTan;
-				f = true;
+				xOffset = -32; yOffset = -xOffset * nTan;
+				lookingLeft = true;
 			}
 
 			else if (rayAngle < PI2 || rayAngle > PI3) // Looking right
 			{
-				rayPosX = floor(player.x / 64) * 64 + 64;
+				rayPosX = floor(player.x / 32) * 32 + 32;
 				rayPosY = (player.x - rayPosX) * nTan + player.y;
-				xOffset = 64; yOffset = -xOffset * nTan;
+				xOffset = 32; yOffset = -xOffset * nTan;
 			} 
 
 			else if (rayAngle == 0 || rayAngle == PI) //looking straight up or down
 			{
 				rayPosX = player.x; 
 				rayPosY = player.y;
-				doF = 8; 
+				doF = 32; 
 			}
 
-			while (doF < 8)
+			while (doF < 32)
 			{
-				if (f) { mapPosX = (int)(rayPosX - 0.0001) >> 6; }
+				if (lookingLeft) { mapPosX = (int)(rayPosX - 0.0001) >> 5; }
 				else 
 				{
-					mapPosX = (int)(rayPosX) >> 6;
+					mapPosX = (int)(rayPosX) >> 5;
 				}
-				mapPosY = (int)(rayPosY) >> 6; mapPos = mapPosY * mapWidth + mapPosX;
+				mapPosY = (int)(rayPosY) >> 5; mapPos = mapPosY * mapWidth + mapPosX;
 				if (mapPos > 0 && mapPos <= (mapWidth * mapHeight) && map[mapPos] > 0) 
 				{ 
 					mp3 = mapPos;
@@ -368,11 +381,9 @@ class Example : public olc::PixelGameEngine
 
 			//-- DRAW 3D WORLD --
 			float ca = player.angle - rayAngle; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
-			float lineH = 64 * (64 / ((tan(player.foW / 2 * DR) * 64) / (rayCast / 2))) / disT;                                       	//Line Height (OBS: ändra * 64 ifall mapp ändras)
+			float lineH = mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / disT;                                       	//Line Height (OBS: ändra * 64 ifall mapp ändras)
 			float lineOffset = wall.angle - lineH / (2 + wall.offset);                                                                   //Line Offset
 			float alphaV = 255 / (disT * 0.0085 + 1);
-
-			
 
 			PaintTextures(r * 1 + 512, lineOffset, lineH, rayPosX ,rayPosY, mapPos, alphaV, kontrast);
 		}
@@ -382,8 +393,8 @@ class Example : public olc::PixelGameEngine
 
 		int const size = 16;
 
-		int mapPosX = floor((mapPos - (mapPos / 8) * 8 ) * 64);
-		int mapPosY = floor((mapPos / 8) * 64);
+		int mapPosX = floor((mapPos - (mapPos / mapWidth) * mapWidth) * 32);
+		int mapPosY = floor((mapPos / mapHeight) * 32);
 		float textureX = rayPosX - mapPosX;
 		float textureY = rayPosY - mapPosY;
 		int facing = 0, column = 0;
@@ -419,7 +430,6 @@ class Example : public olc::PixelGameEngine
 				int index = textur[map[mapPos] - 1][(i * size) + column];
 
 				FillRect(lineX, lineOffset + (pixelHeight * i), 1, pixelHeight + 2, olc::Pixel(color[index].r, color[index].g, color[index].b, alphaV - kontrast));
-				//FillRect(r * 1 + 512, lineO, 1, lineH, olc::Pixel(colorV[0], colorV[1], colorV[2], alphaV - kontrast));
 			}
 		}
 	}
@@ -474,12 +484,12 @@ public:
 	bool OnUserCreate() override
 	{
 		backgroundColor(olc::DARK_GREY);
-		player.x = 288; player.y = 128; player.width = 16;
+		player.x = 288; player.y = 128; player.width = 4;
 		player.angle = PI2;
 		player.movement_speed = 100;
 		player.walk_animation_speed = 1;
 		player.walk_animation_waveLength = 4;
-		player.foW = 120;
+		player.foW = 60;
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
