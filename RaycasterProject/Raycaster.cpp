@@ -503,7 +503,61 @@ class Example : public olc::PixelGameEngine
 		}
 	}
 
+	void PaintTextures2(int lineX, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
 
+		int const size = 64;
+
+		int mapPosX = floor((mapPos - (mapPos / mapWidth) * mapWidth) * 32);
+		int mapPosY = floor((mapPos / mapHeight) * 32);
+		float textureX = rayPosX - mapPosX;
+		float textureY = rayPosY - mapPosY;
+		int facing = 0, column = 0;
+
+		olc::Sprite* sprpointer;
+		std::unique_ptr<olc::Sprite> sprTile;
+		sprTile = std::make_unique<olc::Sprite>("W3d_protoredbrick1.png");
+		olc::Pixel currentpixel;
+		int currentr;
+		int currentg;
+		int currentb;
+
+		if (rayPosY == mapPosY && rayPosX != mapPosX && rayPosX != mapPosX + mapS) //uppifrån id 1
+		{
+			facing = 1;
+			column = 1.00000 / (size * size) * (rayPosX - mapPosX) * size * (size * size / mapS);
+		}
+		else if (rayPosY == mapPosY + mapS && rayPosX != mapPosX + mapS && rayPosX != mapPosX) //nedifrån id 2
+		{
+			facing = 2;
+			column = 1.00000 / (size * size) * (mapS - (rayPosX - mapPosX)) * size * (size * size / mapS);
+		}
+		if (rayPosX == mapPosX && rayPosY != mapPosY && rayPosY != mapPosY + mapS) //höger id 3
+		{
+			facing = 3;
+			column = 1.00000 / (size * size) * (mapS - (rayPosY - mapPosY)) * size * (size * size / mapS);
+		}
+		else if (rayPosX == mapPosX + mapS && rayPosY != mapPosY + mapS && rayPosY != mapPosY) //Anta vänster id 4, alla övriga testade
+		{
+			facing = 4;
+			column = 1.00000 / (size * size) * (rayPosY - mapPosY) * size * (size * size / mapS);
+		}
+		if (column >= size) { column = size - 1; }
+
+		float pixelHeight = lineH / size;
+
+		if (facing != 0) {
+			for (int i = 0; i < size; i++) {
+
+				int index = textur[map[mapPos] - 1][(i * size) + column];
+				sprpointer = sprTile.get();
+				currentpixel = (*sprpointer).GetPixel(column, i);
+				currentr = currentpixel.r;
+				currentg = currentpixel.g;
+				currentb = currentpixel.b;
+				FillRect(lineX, lineOffset + (pixelHeight * i), 1, pixelHeight + 2, olc::Pixel(currentr, currentg, currentb, alphaV - kontrast));
+			}
+		}
+	}
 
 
 	void backgroundColor(olc::Pixel color) {

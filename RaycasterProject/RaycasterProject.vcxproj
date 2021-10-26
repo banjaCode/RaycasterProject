@@ -147,6 +147,11 @@
   <ItemGroup>
     <Text Include="Text.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\RaycasterProject\RaycasterProject\W3d_protoredbrick1.png">
+      <DeploymentContent>false</DeploymentContent>
+    </Image>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
