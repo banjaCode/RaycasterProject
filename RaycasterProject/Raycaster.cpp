@@ -42,6 +42,8 @@ class Example : public olc::PixelGameEngine
 	Player_Values player;
 	Wall_Values wall;
 
+
+
 	// [ Draw player on 2d map ]
 	void Drawplayer()
 	{
@@ -53,6 +55,9 @@ class Example : public olc::PixelGameEngine
 		int r, g, b;
 		string name;
 	};
+    //generate textures
+
+
 
 	rgb_color color[8] =
 	{
@@ -68,8 +73,9 @@ class Example : public olc::PixelGameEngine
 		{122, 122, 122, "light_grey"},
 	    {85, 81, 81, "grey"}
 	};
-
-
+	
+	int coulorArray[3][64 * 64];
+	
 	int textur[3][16 * 16]
 	{
 		{
@@ -292,6 +298,8 @@ class Example : public olc::PixelGameEngine
 		int rayCast = 1024;
 		int mp2, mp3;
 
+		
+
 		for (int r = 0; r < rayCast; r++)
 		{
 		    float rayAngleIncrease = atan(-tan(player.foW * DR / 2) + (tan(player.foW * DR / 2) / (rayCast / 2)) * r);
@@ -406,11 +414,12 @@ class Example : public olc::PixelGameEngine
 
 			//-- DRAW 3D WORLD --
 			float ca = player.angle - rayAngle; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
-			float lineH = mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / disT;                                       	//Line Height (OBS: ändra * 64 ifall mapp ändras)
+			float lineH = mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / disT;                                  	 //Line Height (OBS: ändra * 64 ifall mapp ändras)
 			float lineOffset = wall.angle - lineH / (2 + wall.offset);                                                                   //Line Offset
 			float alphaV = 255 / (disT * 0.0085 + 1);
 
-			PaintTextures2(r * 1 + 512, lineOffset, lineH, rayPosX ,rayPosY, mapPos, alphaV, kontrast);
+			//PaintTextures(r * 1 + 512, lineOffset, lineH, rayPosX ,rayPosY, mapPos, alphaV, kontrast);
+			PaintTexture1(r * 1 + 512, lineOffset, lineH, rayPosX, rayPosY, mapPos, alphaV, kontrast, coulorArray);
 		}
 	}
 
@@ -459,7 +468,45 @@ class Example : public olc::PixelGameEngine
 		}
 	}
 
-	void PaintTextures2(int lineX, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
+	
+
+	int** GenerateTextures(string path) 
+	{
+		olc::Sprite* sprpointer;
+		std::unique_ptr<olc::Sprite> sprTile;
+		sprTile = std::make_unique<olc::Sprite>(path);
+		olc::Pixel currentpixel;
+		int currentr;
+		int currentg;
+		int currentb;
+		const int size = 64;
+		int coulorArray[3][size * size]
+		{
+			{//r
+
+			},
+			{//g
+
+			},
+			{ //b
+
+			}
+		};
+		for (int c; c < 64; c++)
+		{
+			for (int r; r < 64; r++)
+			{
+				sprpointer = sprTile.get();
+				currentpixel = (*sprpointer).GetPixel(c, r);
+				coulorArray[1][c*size + r] = currentpixel.r;
+				coulorArray[2][c * size + r] = currentpixel.g;
+				coulorArray[3][c * size + r] = currentpixel.b;
+			}
+		}
+		return coulorArray;
+	}
+
+	void PaintTextures2(int lineX, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast, int Aarray[3][64 * 64]) {
 
 		int const size = 64;
 
@@ -469,13 +516,10 @@ class Example : public olc::PixelGameEngine
 		float textureY = rayPosY - mapPosY;
 		int facing = 0, column = 0;
 
-		olc::Sprite* sprpointer;
-		std::unique_ptr<olc::Sprite> sprTile;
-		sprTile = std::make_unique<olc::Sprite>("W3d_protoredbrick1.png");
-		olc::Pixel currentpixel;
-		int currentr;
-		int currentg;
-		int currentb;
+
+
+
+
 
 		if (rayPosY == mapPosY && rayPosX != mapPosX && rayPosX != mapPosX + mapS) //uppifrån id 1
 		{
@@ -501,16 +545,15 @@ class Example : public olc::PixelGameEngine
 
 		float pixelHeight = lineH / size;
 
+
+		//Aarray[3][64 * 64]
+
+
 		if (facing != 0) {
 			for (int i = 0; i < size; i++) {
 
 				int index = textur[map[mapPos] - 1][(i * size) + column];
-				sprpointer = sprTile.get();
-				currentpixel = (*sprpointer).GetPixel(column, i);
-				currentr = currentpixel.r;
-				currentg = currentpixel.g;
-				currentb = currentpixel.b;
-				FillRect(lineX, lineOffset + (pixelHeight * i), 1, pixelHeight + 2, olc::Pixel(currentr, currentg, currentb, alphaV - kontrast));
+				FillRect(lineX, lineOffset + (pixelHeight * i), 1, pixelHeight + 2, olc::Pixel(Aarray[1][column * i], Aarray[2][column * i], Aarray[3][column * i], alphaV - kontrast));
 			}
 		}
 	}
@@ -569,6 +612,11 @@ public:
 		player.walk_animation_speed = 1;
 		player.walk_animation_waveLength = 4;
 		player.foW = 60;
+
+		GenerateTextures("../../RaycasterProject/RaycasterProject/W3d_protoredbrick1.png");
+
+
+
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
