@@ -3,6 +3,11 @@
 #include <iostream>
 #include <stdio.h>
 #include <math.h>
+#include <list>
+#include <iterator>
+#include <vector>
+#include <algorithm>
+
 #define PI  3.14159265358979323846
 #define PI2 PI/2
 #define PI3 PI + PI2
@@ -10,36 +15,71 @@
 
 using namespace std;
 
+struct Wall_Values
+{
+	float angle = 0;
+	float offset = 0;
+	int width = 1;
+};
+
+struct rgb_color
+{
+	int r, g, b;
+	string name;
+};
+
+struct Player_Values
+{
+	float x, y, z = 0;						                        //spelarens x och y position
+	float angle;                                                    // angle of the caracter
+	float previous_x, previous_y;									//spelarens position förra framen
+	olc::vf2d velocity;          									//spelarens hastighet
+	float velocity_angle;
+	float width;													//spelare bred för kolision 
+	float moved_Distance = 0;										// x value of sin in walking animation
+	float xSensitivity = 0.5, ySensitivity = 200;				    // sensitivity of mouse
+	float movement_speed;											// movment speed
+	bool walk_animation = false;									// desides if the walking animation is on
+	float walk_animation_speed, walk_animation_waveLength;			//  1: speed of sin wave in walking animation  2:amplituden på sin vågen
+	int foW;
+	float zoomValue = 0;
+};
+
+struct ray_Values
+{
+	float disT;
+	float x, y;
+	int mapPos, mapPosY, mapPosX;
+	int kontrast = 0;
+};
+
+struct list_rayPoints_Values 
+{
+	vector <ray_Values> list;
+	int orderInZ;
+	int orderInArray;
+};
+
+bool compare(const ray_Values& first, const ray_Values& second)
+{
+	if (first.disT > second.disT)
+		return true;
+	else
+		return false;
+}
+
+bool compare2(const list_rayPoints_Values& first, const list_rayPoints_Values& second)
+{
+	if (first.orderInArray >= second.orderInArray)
+		return true;
+	else
+		return false;
+}
+
 class Example : public olc::PixelGameEngine
 {
-	struct Vector2D
-	{
-		float x;
-		float y;
-	};
-	struct Player_Values
-	{
-		float x, y, z = 0;						                                //spelarens x och y position
-		float angle;                                                    // angle of the caracter
-		float previous_x, previous_y;									//spelarens position förra framen
-		Vector2D velocity;          									//spelarens hastighet
-		float velocity_angle;
-		float width;													//spelare bred för kolision 
-		float moved_Distance = 0;										// x value of sin in walking animation
-		float xSensitivity = 0.5, ySensitivity = 200;				    // sensitivity of mouse
-		float movement_speed;											// movment speed
-		bool walk_animation = false;									// desides if the walking animation is on
-		float walk_animation_speed, walk_animation_waveLength;			//  1: speed of sin wave in walking animation  2:amplituden på sin vågen
-		int foW;
-		float zoomValue = 0;
-	};
-	struct Wall_Values 
-	{
-		float angle = 0;
-		float offset = 0;
-	};
-	
-	Vector2D pMouseCoordinates;
+
+	olc::vf2d pMouseCoordinates;
 	Player_Values player;
 	Wall_Values wall;
 
@@ -49,12 +89,6 @@ class Example : public olc::PixelGameEngine
 		FillCircle(player.x, player.y, player.width/2, olc::YELLOW);
 		DrawLinePro(player.x, player.y, player.x + cos(player.angle) * 30, player.y + sin(player.angle) * 30 ,5,olc::DARK_GREEN);
 	}
-
-	struct rgb_color 
-	{
-		int r, g, b;
-		string name;
-	};
 
 	rgb_color color[8] =
 	{
@@ -147,28 +181,121 @@ class Example : public olc::PixelGameEngine
 	};
 	*/
 	
-	const static int mapS = 64 / 2;
+	const static int mapS = 64 / 4;
 	const static int mapWidth = 16, mapHeight = 16, mapS2 = mapWidth * mapHeight;
-	int map[mapS2] =
+	const static int layers = 6;
+	int map[layers][mapS2] =
 	{
+		{
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	    0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		},
+		{
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
+		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		},
+		{
+    	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
+		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
+		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
+		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		},
+	    {
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
+		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
+		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
+		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		},
+	    {
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
+		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		},
+	    {
+	    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		}
 	};
-	
+
 
 	// [ Draws 2D map ]
 	void DrawMap2D()
@@ -180,8 +307,8 @@ class Example : public olc::PixelGameEngine
 		{
 			for (x = 0; x < mapWidth;x++)
 			{
-				if (map[y * mapWidth + x] > 0) { color = olc::WHITE; }
-				else { color = olc::BLACK;; }
+				if (map[0][y * mapWidth + x] > 0) { color = olc::WHITE; }
+				else { color = olc::BACK;; }
 				xo = x * mapS; yo = y * mapS;
 				FillRect(xo + 3, yo + 3, mapS - 3, mapS - 3, color);
 			}
@@ -240,7 +367,7 @@ class Example : public olc::PixelGameEngine
 		//------------------------------------------------------------------------------------------------------------------
 
 		// -- ROTATIONAL MOVEMENT --
-		Vector2D rotational_Movement_Speed;
+		olc::vf2d rotational_Movement_Speed;
 		rotational_Movement_Speed.x = abs(pMouseCoordinates.x - GetMouseX()) * tc * player.xSensitivity;
 		rotational_Movement_Speed.y = abs(pMouseCoordinates.y - GetMouseY()) * tc * player.ySensitivity;
 
@@ -261,19 +388,19 @@ class Example : public olc::PixelGameEngine
 		if ((pMouseCoordinates.y > GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::DOWN).bHeld) { 
 			wall.angle += rotational_Movement_Speed.y;
 		}
-		else if (GetKey(olc::Key::Y).bHeld) { wall.angle += 5 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
+		else if (GetKey(olc::Key::Y).bHeld) { wall.angle += 5 * tc * player.ySensitivity;  }
 
 		if ((pMouseCoordinates.y < GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::UP).bHeld) {
 			wall.angle -= rotational_Movement_Speed.y; 
 		}
-		else if (GetKey(olc::Key::H).bHeld) { wall.angle -= 5 * tc * player.ySensitivity;  if (wall.angle > 160 + 500) { wall.angle = 160 + 500; } }
+		else if (GetKey(olc::Key::H).bHeld) { wall.angle -= 5 * tc * player.ySensitivity;  }
 
 		// saves mouse coordinates
 		pMouseCoordinates = { (float)GetMouseX(), (float)GetMouseY() };
 
 		// -- SET WORLD LIMITS --  
 
-		Vector2D borderPos, mapPosCoordinates;
+		olc::vf2d borderPos, mapPosCoordinates;
 		int mapPos;
 
 		// ritar en cirkel runt spelaren och kollar om någon vägg rör cirkeln
@@ -305,158 +432,141 @@ class Example : public olc::PixelGameEngine
 	void DrawRays2D()
 	{
 		// dof = depth off field, changes how far the ray goes
-		int mapPosX = 0, mapPosY = 0, mapPos, doF = 0, kontrast = 0, mapIn; 
-		float  rayPosX, rayPosY, rayAngle, xOffset, yOffset, disT;
+		int doF = 0, kontrast = 0, mapIn; 
+		float rayAngle, xOffset, yOffset;
+		float tanOfFoW = tan(player.foW * DR / 2);
 
-		int rayCast = 60;
+		int rayCast = 1024;
 
 		for (int r = 0; r < rayCast; r++)
 		{
-		    float rayAngleIncrease = atan(-tan(player.foW * DR / 2) + (tan(player.foW * DR / 2) / (rayCast / 2)) * r);
+			list_rayPoints_Values list_rayPoints[layers];
+			ray_Values newRay;
+
+		    float rayAngleIncrease = atan(-tanOfFoW + (tanOfFoW / (rayCast / 2)) * r);
 			rayAngle = player.angle + rayAngleIncrease;  if (rayAngle < 0) { rayAngle += 2 * PI; } if (rayAngle > 2 * PI) { rayAngle -= 2 * PI; }
-			
+
+			float tanOfAngle = tan(rayAngle);
 
 			//--  CHECK HORIZONTAL LINES --
 			doF = 0;
-			int mp2[mapHeight];
-			float disH[mapHeight], hx[mapHeight], hy[mapHeight];
-			float aTan = -1 / tan(rayAngle);	
-
+			float aTan = -1 / tanOfAngle;
 			bool lookingUp = false;
 
 			if (rayAngle > PI) //looking up
 			{
-				rayPosY = floor(player.y / mapS) * mapS;
+				newRay.y = floor(player.y / mapS) * mapS;
 
-				if (rayPosY < 0) { rayPosY = 0; }
-				else if (rayPosY > mapS * mapHeight) { rayPosY = mapS * mapWidth; }   // rayPosX cap
-				rayPosX = (player.y - rayPosY) * aTan + player.x;
+				if (newRay.y < 0) { newRay.y = 0; }
+				else if (newRay.y > mapS * mapHeight) { newRay.y = mapS * mapWidth; }   // newRay.x cap
+				newRay.x = (player.y - newRay.y) * aTan + player.x;
 				yOffset = -mapS; xOffset = -yOffset * aTan;
 				lookingUp = true; mapIn = mapWidth;
 			}
 
 			else if (rayAngle < PI)	//looking down
 			{
-				rayPosY = floor(player.y / mapS) * mapS + mapS;
+				newRay.y = floor(player.y / mapS) * mapS + mapS;
 
-				if (rayPosY < 0) { rayPosY = 0; }
-				else if (rayPosY > mapS * mapHeight) { rayPosX = mapS * mapWidth; }   // rayPosY cap
-				rayPosX = (player.y - rayPosY) * aTan + player.x;
+				if (newRay.y < 0) { newRay.y = 0; }
+				else if (newRay.y > mapS * mapHeight) { newRay.x = mapS * mapWidth; }   // newRay.y cap
+				newRay.x = (player.y - newRay.y) * aTan + player.x;
 				yOffset = mapS; xOffset = -yOffset * aTan;
 				mapIn = -mapWidth;
 			}
 
-			else if (rayAngle == 0 || rayAngle == PI) 	//looking straight left or right
-			{
-				rayPosX = player.x;
-				rayPosY = player.y;
-				doF = mapHeight;
-			}
-
 			while (doF < mapHeight)
 			{
-				if (lookingUp) { mapPosY = (int)(rayPosY - 0.0001) / mapS; }
-				else { mapPosY = (int)(rayPosY) / mapS; }
+				if (lookingUp) { newRay.mapPosY = (int)(newRay.y - 0.0001) / mapS; }
+				else { newRay.mapPosY = (int)(newRay.y) / mapS; }
+				newRay.mapPosX = (int)(newRay.x) / mapS; newRay.mapPos = newRay.mapPosY * mapWidth + newRay.mapPosX;
 
-				mapPosX = (int)(rayPosX) / mapS; mapPos = mapPosY * mapWidth + mapPosX;
-				if (mapPos > 0 && mapPos <= (mapWidth * mapHeight) && ( map[mapPos] > 0 || map[mapPos + mapIn] > 0 ) && rayPosX < mapS * mapWidth && rayPosY < mapS * mapWidth && rayPosX > 0 && rayPosY > 0)
+				for (int i = 0; i < layers; i++) 
 				{
-					mp2[doF] = mapPos;
-					hx[doF] = rayPosX; hy[doF] = rayPosY;
-					disH[doF] = Pyth(player.x, player.y, hx[doF], hy[doF]);
+					if (newRay.mapPos > 0 && newRay.mapPos <= (mapWidth * mapHeight) && (map[i][newRay.mapPos] > 0 || map[i][newRay.mapPos + mapIn] > 0) && newRay.x < mapS * mapWidth && newRay.y < mapS * mapWidth && newRay.x > 0 && newRay.y > 0)
+					{
+						newRay.disT = Pyth(player.x, player.y, newRay.x, newRay.y);
+						list_rayPoints[i].list.push_back(newRay);
+					}
 				}
-				else 
-				{
-					hx[doF] = player.x; hy[doF] = player.y;
-					disH[doF] = 100000000;
-				}
-				rayPosX += xOffset; rayPosY += yOffset; doF += 1;
+				newRay.x += xOffset; newRay.y += yOffset; doF += 1;
 			}
 
 			//-- check vertical lines--
 			doF = 0;
-			int mp3[mapWidth];
-			float disV[mapHeight], vx[mapHeight], vy[mapHeight];
 			bool lookingLeft = false;
 
-			float nTan = -tan(rayAngle);
+			float nTan = -tanOfAngle;
 
 			if (rayAngle > PI2 && rayAngle < PI3) // Looking left
 			{
-				rayPosX = floor(player.x / mapS) * mapS; 
+				newRay.x = floor(player.x / mapS) * mapS; 
 
-				if (rayPosX < 0) { rayPosX = 0; }
-				else if (rayPosX > mapS * mapWidth) { rayPosX = mapS * mapWidth; }   // rayPosX cap
-				rayPosY = (player.x - rayPosX) * nTan + player.y;
+				if (newRay.x < 0) { newRay.x = 0; }
+				else if (newRay.x > mapS * mapWidth) { newRay.x = mapS * mapWidth; }   // newRay.x cap
+				newRay.y = (player.x - newRay.x) * nTan + player.y;
 				xOffset = -mapS; yOffset = -xOffset * nTan;
 				lookingLeft = true; mapIn = 1;
 			}
 
 			else if (rayAngle < PI2 || rayAngle > PI3) // Looking right
 			{
-				rayPosX = floor(player.x / mapS) * mapS + mapS;
+				newRay.x = floor(player.x / mapS) * mapS + mapS;
 
-				if (rayPosX < 0) { rayPosX = 0; }
-				else if (rayPosX > mapS * mapWidth) { rayPosX = mapS * mapWidth; }   // rayPosX cap
-				rayPosY = (player.x - rayPosX) * nTan + player.y;
+				if (newRay.x < 0) { newRay.x = 0; }
+				else if (newRay.x > mapS * mapWidth) { newRay.x = mapS * mapWidth; }   // newRay.x cap
+				newRay.y = (player.x - newRay.x) * nTan + player.y;
 				xOffset = mapS; yOffset = -xOffset * nTan;
 				mapIn = -1;
 			} 
 
-			else if (rayAngle == 0 || rayAngle == PI) //looking straight up or down
-			{
-				rayPosX = player.x; 
-				rayPosY = player.y;
-				doF = mapWidth; 
-			}
-
 			while (doF < mapWidth)
 			{
-				if (lookingLeft) { mapPosX = (int)(rayPosX - 0.0001) / mapS; }
-				else { mapPosX = (int)(rayPosX) / mapS; }
+				if (lookingLeft) { newRay.mapPosX = (int)(newRay.x - 0.0001) / mapS; }
+				else { newRay.mapPosX = (int)(newRay.x) / mapS; }
 
-				mapPosY = (int)(rayPosY) / mapS; mapPos = mapPosY * mapWidth + mapPosX;
-				if (mapPos > 0 && mapPos <= (mapWidth * mapHeight) && (map[mapPos] > 0 || map[mapPos + mapIn] > 0) && rayPosX < mapS * mapWidth && rayPosY < mapS * mapWidth && rayPosX > 0 && rayPosY > 0)
-				{ 
-					mp3[doF] = mapPos;
-					vx[doF] = rayPosX; vy[doF] = rayPosY;
-					disV[doF] = Pyth(player.x, player.y, vx[doF], vy[doF]);
-				}
-				else 
+				newRay.mapPosY = (int)(newRay.y) / mapS; newRay.mapPos = newRay.mapPosY * mapWidth + newRay.mapPosX;
+				for (int i = 0; i < layers; i++)
 				{
-					vx[doF] = player.x; vy[doF] = player.y;
-					disV[doF] = 100000000;
+					if (newRay.mapPos > 0 && newRay.mapPos <= (mapWidth * mapHeight) && (map[i][newRay.mapPos] > 0 || map[i][newRay.mapPos + mapIn] > 0) && newRay.x < mapS * mapWidth && newRay.y < mapS * mapWidth && newRay.x > 0 && newRay.y > 0)
+					{
+						newRay.disT = Pyth(player.x, player.y, newRay.x, newRay.y);
+						list_rayPoints[i].list.push_back(newRay);
+					}
 				}
-				rayPosX += xOffset; rayPosY += yOffset; doF += 1; 
+				newRay.x += xOffset; newRay.y += yOffset; doF += 1; 
 			}
-		
-			for (int i = mapWidth - 1; i > -1; i--)
+
+			for (int i = 0; i < layers; i++)
 			{
-				if (disV[i] < disH[i])  // set ray distans depending on which is longer
-				{
-					rayPosX = vx[i]; rayPosY = vy[i]; disT = disV[i]; kontrast = 20;
-					mapPos = mp3[i];
-				}
-				else
-				{
-					rayPosX = hx[i]; rayPosY = hy[i]; disT = disH[i];
-					kontrast = 0;
-					mapPos = mp2[i];
-				}
-
-				//-- DRAW 3D WORLD --
-				float lineW = 17;
-				float ca = player.angle - rayAngle; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } disT = disT * cos(ca);  // best�mmer distans till v�gg
-				float lineH = (mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / disT) * lineW;                           //Line Height (OBS: ändra * 64 ifall mapp ändras)
-				float lineOffset = wall.angle + lineH * player.z;                                                                           //Line Offset
-				float alphaV = 255 / (disT * 0.0085 + 1);
-
-				//FillRect(r * 1 + 512, lineOffset, 1, lineH, olc::Pixel(200, 150, 60, alphaV - kontrast));
-				PaintTextures(r * lineW + 512, lineW, lineOffset, lineH, rayPosX, rayPosY, mapPos, alphaV, kontrast);
-			  //  DrawLine(player.x, player.y, rayPosX, rayPosY, olc::DARK_RED);
+				list_rayPoints[i].orderInZ = (i);
+				list_rayPoints[i].orderInArray = abs(i + player.z);
 			}
-		}
-	}
+
+			sort(list_rayPoints, list_rayPoints + layers, compare2);
+
+			for (int i = 0; i < layers; i++)
+			{
+				sort(list_rayPoints[i].list.begin(), list_rayPoints[i].list.end(), compare);
+
+				for (vector<ray_Values>::iterator rayPoint = list_rayPoints[i].list.begin(); rayPoint != list_rayPoints[i].list.end(); rayPoint++)
+				{
+					//-- DRAW 3D WORLD --
+					float ca = player.angle - rayAngle; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } (*rayPoint).disT = (*rayPoint).disT * cos(ca);  // best�mmer distans till v�gg
+					float lineH = (mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / (*rayPoint).disT) * wall.width;                                     //Line Height (OBS: ändra * 64 ifall mapp ändras)
+					float lineOffset = wall.angle + lineH * (player.z + list_rayPoints[i].orderInZ);                                                                                             //Line Offset
+					float alphaV = 255 / ((*rayPoint).disT * 0.0085 + 1);
+
+					//FillRect(r * lineW + 512, lineOffset, lineW, lineH, olc::Pixel(200, 150, 60, alphaV - kontrast));
+					PaintTextures(r * wall.width + 512, wall.width, lineOffset, lineH, (*rayPoint).x, (*rayPoint).y, (*rayPoint).mapPos, alphaV, kontrast);
+					//PaintTextures2(r * lineW + 512, lineOffset, lineH, newRay.x, newRay.y, newRay.mapPos, alphaV, kontrast);
+					DrawLine(player.x, player.y, (*rayPoint).x, (*rayPoint).y, olc::DARK_RED);
+				}
+				list_rayPoints[i].list.clear();
+			}
+        }
+    }
+	
 
 	void PaintTextures(int lineX, float lineWidth, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
 
@@ -496,13 +606,21 @@ class Example : public olc::PixelGameEngine
 		if (facing != 0) {
 			for (int i = 0; i < size; i++) {
 
-				int index = textur[map[mapPos] - 1][(i * size) + column];
+				int index = textur[map[0][mapPos] - 1][(i * size) + column];
+				if (GetKey(olc::Key::Q).bHeld)
+				{
+					cout << mapPos << "  ";
+				}
+				
+				index = 3;
 
-				FillRect(lineX, lineOffset + (pixelHeight * i), lineWidth, pixelHeight + 1, olc::Pixel(color[index].r, color[index].g, color[index].b, alphaV - kontrast));
+				FillRect(lineX, lineOffset + (pixelHeight * i), lineWidth, pixelHeight + 1, olc::Pixel(color[index].r , color[index].g, color[index].b, alphaV - kontrast));
 			}
 		}
 	}
 
+	/*
+	// lägg till lineWidth till painttexture2
 	void PaintTextures2(int lineX, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
 
 		int const size = 64;
@@ -558,6 +676,7 @@ class Example : public olc::PixelGameEngine
 			}
 		}
 	}
+	*/
 
 
 	void backgroundColor(olc::Pixel color) {
@@ -570,9 +689,9 @@ class Example : public olc::PixelGameEngine
 		return sqrt(pow((bx - ax), 2) + pow((by - ay), 2));
 	}
 
-	Vector2D addVectors(Vector2D vektor1, Vector2D vektor2)
+	olc::vf2d addVectors(olc::vf2d vektor1, olc::vf2d vektor2)
 	{
-		Vector2D resVector;
+		olc::vf2d resVector;
 		resVector.x = vektor1.x + vektor2.x;
 		resVector.y = vektor1.y + vektor2.y;
 		return resVector;
@@ -612,7 +731,7 @@ public:
 	bool OnUserCreate() override
 	{
 		backgroundColor(olc::DARK_GREY);
-		player.x = 288; player.y = 130; player.width = 2;
+		player.x = 288; player.y = 130; player.z = 0; player.width = 2;
 		player.angle = PI2;
 		player.movement_speed = 100;
 		player.walk_animation_speed = 1;
@@ -620,26 +739,34 @@ public:
 		player.walk_animation = false;
 		player.foW = 60;
 		wall.angle = ScreenHeight() / 4;
-		player.ySensitivity = 40;
+		player.ySensitivity *= 2;
+		player.xSensitivity *= 0.5;
 		return true;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		if (GetKey(olc::Key::ESCAPE).bPressed) { return false; }
 
+		if (GetKey(olc::Key::Q).bHeld)
+		{
+			cout << player.z << "  ";
+		}
+
 		backgroundColor(olc::DARK_BLUE);
 		FillRect(0, 0, 512, 512 ,olc::Pixel (255 ,255 ,255 ,100));
-		//DrawMap2D();
+		DrawMap2D();
 		DrawRays2D();
-		//Drawplayer();
+		DrawRays2D();
+		Drawplayer();
 		buttons();
 		return true;
 	}
 };
+
 int main()
 {
 	Example demo;
-	if (demo.Construct(512 * 3, 512 * 2, 1, 1))
+	if (demo.Construct(512 * 3, 512 * 4, 1, 1))
 		demo.Start();
 	return 0;
 }
