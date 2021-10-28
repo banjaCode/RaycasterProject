@@ -184,9 +184,9 @@ class Example : public olc::PixelGameEngine
 	};
 	*/
 	
-	const static int mapS = 64 / 4;
+	const static int mapS = 64 / 2;
 	const static int mapWidth = 16, mapHeight = 16, mapS2 = mapWidth * mapHeight;
-	const static int layers = 6;
+	const static int layers = 1;
 	int map[layers][mapS2] =
 	{
 		{
@@ -196,96 +196,6 @@ class Example : public olc::PixelGameEngine
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-		{
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-		{
-    	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
-		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-	    {
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,
-		0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
-		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-	    {
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-	    {
-	    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
@@ -383,15 +293,19 @@ class Example : public olc::PixelGameEngine
 		else if (GetKey(olc::Key::J).bHeld) { player.angle += 5 * tc * player.xSensitivity;  if (player.angle > 359 * DR)   player.angle -= 2 * PI;}
 
 		// rotation i y-led
+		
+		/*
 		if ((pMouseCoordinates.y > GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::DOWN).bHeld) { 
 			wall.angle += rotational_Movement_Speed.y;
 		}
-		else if (GetKey(olc::Key::Y).bHeld) { wall.angle += 5 * tc * player.ySensitivity;  }
-
+		*/
+	    if (GetKey(olc::Key::Y).bHeld) { wall.angle += 5 * tc * player.ySensitivity;  }
+		/*
 		if ((pMouseCoordinates.y < GetMouseY() && GetMouseY() < ScreenHeight() && GetMouseY() > 0) || GetKey(olc::Key::UP).bHeld) {
 			wall.angle -= rotational_Movement_Speed.y; 
 		}
-		else if (GetKey(olc::Key::H).bHeld) { wall.angle -= 5 * tc * player.ySensitivity;  }
+		*/
+		if (GetKey(olc::Key::H).bHeld) { wall.angle -= 5 * tc * player.ySensitivity;  }
 
 		// saves mouse coordinates
 		pMouseCoordinates = { (float)GetMouseX(), (float)GetMouseY() };
@@ -434,7 +348,7 @@ class Example : public olc::PixelGameEngine
 		float rayAngle, xOffset, yOffset;
 		float tanOfFoW = tan(player.foW * DR / 2);
 
-		int rayCast = 1024;
+		int rayCast = 4;
 		wall.width = ScreenWidth() / rayCast;
 
 		for (int r = 0; r < rayCast; r++)
@@ -605,13 +519,7 @@ class Example : public olc::PixelGameEngine
 		if (facing != 0) {
 			for (int i = 0; i < size; i++) {
 
-				int index = textur[map[0][mapPos] - 1][(i * size) + column];
-				if (GetKey(olc::Key::Q).bHeld)
-				{
-					cout << mapPos << "  ";
-				}
-				
-				index = 3;
+				int index = textur[map[3][mapPos] - 1][(i * size) + column];				
 
 				FillRect(lineX, lineOffset + (pixelHeight * i), lineWidth, pixelHeight + 1, olc::Pixel(color[index].r , color[index].g, color[index].b, alphaV - kontrast));
 			}
@@ -626,36 +534,31 @@ class Example : public olc::PixelGameEngine
 		std::unique_ptr<olc::Sprite> sprTile;
 		sprTile = std::make_unique<olc::Sprite>(path);
 		olc::Pixel currentpixel;
-		size = size * size;
 		for (int c = 0; c < size; c++)
 		{
 			for (int r = 0; r < size; r++)
 			{
+				int arrPos = ((c * size) + r);
 				sprpointer = sprTile.get();
 				currentpixel = (*sprpointer).GetPixel(c, r);
-				Aarray[1][c * size + r] = currentpixel.r;
-				Aarray[2][c * size + r] = currentpixel.g;
-				Aarray[3][c * size + r] = currentpixel.b;
+				Aarray[0][arrPos] = currentpixel.r;
+				Aarray[1][arrPos] = currentpixel.g;
+				Aarray[2][arrPos] = currentpixel.b;
 			}
 		}
 	}
-	*/
+	
 
 	
-	// lägg till lineWidth till painttexture2
 	void PaintTextures2(int lineX, int lineWidth, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
 
-		int const size = 64;
+		int const size = 16;
 
-		int mapPosX = floor((mapPos - (mapPos / mapWidth) * mapWidth) * 32);
-		int mapPosY = floor((mapPos / mapHeight) * 32);
+		int mapPosX = floor((mapPos - (mapPos / mapWidth) * mapWidth) * mapS);
+		int mapPosY = floor((mapPos / mapHeight) * mapS);
 		float textureX = rayPosX - mapPosX;
 		float textureY = rayPosY - mapPosY;
 		int facing = 0, column = 0;
-
-
-
-
 
 
 		if (rayPosY == mapPosY && rayPosX != mapPosX && rayPosX != mapPosX + mapS) //uppifrån id 1
@@ -682,17 +585,21 @@ class Example : public olc::PixelGameEngine
 
 		float pixelHeight = lineH / size;
 
+		for (int i = 0; i < size; i++) {
 
-		//Aarray[3][64 * 64]
+			showVariable = column;
 
+			int index = (i * size) + column;
 
-		if (facing != 0) {
-			for (int i = 0; i < size; i++) {
-
-				int index = textur[map[1][mapPos] - 1][(i * size) + column];
-				FillRect(lineX, lineOffset + (pixelHeight * i), lineWidth, pixelHeight + 2, olc::Pixel(Aarray[1][column * i], Aarray[2][column * i], Aarray[3][column * i], alphaV - kontrast));
-			}
+			showVariable = mapPos;
+			FillRect(lineX, lineOffset + (pixelHeight * i), lineWidth, pixelHeight + 2, olc::Pixel(Aarray[0][index], Aarray[1][index], Aarray[2][index], alphaV - kontrast));
 		}
+
+
+
+
+
+
 	}
 	
 
