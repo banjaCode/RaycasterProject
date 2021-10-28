@@ -639,9 +639,9 @@ class Example : public olc::PixelGameEngine
 			{
 				sprpointer = sprTile.get();
 				currentpixel = (*sprpointer).GetPixel(c, r);
-				Aarray[1][c * size + r] = currentpixel.r;
-				Aarray[2][c * size + r] = currentpixel.g;
-				Aarray[3][c * size + r] = currentpixel.b;
+				Aarray[1][1] = currentpixel.r;
+				Aarray[2][1] = currentpixel.g;
+				Aarray[3][1] = currentpixel.b;
 			}
 		}
 	}
