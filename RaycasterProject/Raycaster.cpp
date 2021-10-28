@@ -7,6 +7,7 @@
 #include <iterator>
 #include <vector>
 #include <algorithm>
+#include <thread>
 
 #define PI  3.14159265358979323846
 #define PI2 PI/2
@@ -42,7 +43,6 @@ struct Player_Values
 	bool walk_animation = false;									// desides if the walking animation is on
 	float walk_animation_speed, walk_animation_waveLength;			//  1: speed of sin wave in walking animation  2:amplituden på sin vågen
 	int foW;
-	float zoomValue = 0;
 };
 
 struct ray_Values
@@ -247,8 +247,8 @@ class Example : public olc::PixelGameEngine
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,
+		0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
 		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
@@ -264,10 +264,10 @@ class Example : public olc::PixelGameEngine
 	    {
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
 		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
@@ -282,10 +282,10 @@ class Example : public olc::PixelGameEngine
 	    {
 	    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
@@ -357,15 +357,10 @@ class Example : public olc::PixelGameEngine
 			}
 		}
 
-		// --CHANGE ZOOM VALUE--
-
-		if (GetKey(olc::Key::O).bHeld) { player.zoomValue += 1; }
-		if (GetKey(olc::Key::L).bHeld) { player.zoomValue -= 1; }
-
 		// --VERTICAL MOVEMENT IN 3D PLANE--
 
-		if (GetKey(olc::Key::C).bHeld) { player.z += 0.1; }
-		if (GetKey(olc::Key::V).bHeld) { player.z -= 0.1; }
+		if (GetKey(olc::Key::C).bHeld) { player.z += 2 * tc; }
+		if (GetKey(olc::Key::V).bHeld) { player.z -= 2 * tc; }
 
 		//------------------------------------------------------------------------------------------------------------------
 
@@ -440,8 +435,7 @@ class Example : public olc::PixelGameEngine
 		float tanOfFoW = tan(player.foW * DR / 2);
 
 		int rayCast = 1024;
-
-		
+		wall.width = ScreenWidth() / rayCast;
 
 		for (int r = 0; r < rayCast; r++)
 		{
@@ -558,8 +552,8 @@ class Example : public olc::PixelGameEngine
 				{
 					//-- DRAW 3D WORLD --
 					float ca = player.angle - rayAngle; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } (*rayPoint).disT = (*rayPoint).disT * cos(ca);  // best�mmer distans till v�gg
-					float lineH = (mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / (*rayPoint).disT) * wall.width;                                     //Line Height (OBS: ändra * 64 ifall mapp ändras)
-					float lineOffset = wall.angle + lineH * (player.z + list_rayPoints[i].orderInZ);                                                                                             //Line Offset
+					float lineH = (mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / (*rayPoint).disT) * wall.width;                                 //Line Height (OBS: ändra * 64 ifall mapp ändras)
+					float lineOffset = wall.angle + lineH * (player.z + list_rayPoints[i].orderInZ);                                                                     //Line Offset
 					float alphaV = 255 / ((*rayPoint).disT * 0.0085 + 1);
 
 					//FillRect(r * lineW + 512, lineOffset, lineW, lineH, olc::Pixel(200, 150, 60, alphaV - kontrast));
@@ -645,6 +639,7 @@ class Example : public olc::PixelGameEngine
 			}
 		}
 	}
+	*/
 
 	
 	// lägg till lineWidth till painttexture2
@@ -769,13 +764,15 @@ public:
 
 		return true;
 	}
+
+	float showVariable;
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		if (GetKey(olc::Key::ESCAPE).bPressed) { return false; }
 
 		if (GetKey(olc::Key::Q).bHeld)
 		{
-			cout << player.z << "  ";
+			cout << showVariable << "   ";
 		}
 
 		backgroundColor(olc::DARK_BLUE);
