@@ -184,118 +184,20 @@ class Example : public olc::PixelGameEngine
 	};
 	*/
 	
-	const static int mapS = 64 / 4;
-	const static int mapWidth = 16, mapHeight = 16, mapS2 = mapWidth * mapHeight;
-	const static int layers = 6;
+	const static int mapS = 64;
+	const static int mapWidth = 8, mapHeight = 8, mapS2 = mapWidth * mapHeight;
+	const static int layers = 1;
 	int map[layers][mapS2] =
 	{
 		{
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-		{
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-		{
-    	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
-		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-	    {
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,
-		0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
-		0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-	    {
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-	    {
-	    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,1,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
 		}
 	};
 
@@ -434,7 +336,7 @@ class Example : public olc::PixelGameEngine
 		float rayAngle, xOffset, yOffset;
 		float tanOfFoW = tan(player.foW * DR / 2);
 
-		int rayCast = 1024;
+		int rayCast = 60;
 		wall.width = ScreenWidth() / rayCast;
 
 		for (int r = 0; r < rayCast; r++)
@@ -558,7 +460,8 @@ class Example : public olc::PixelGameEngine
 
 					//FillRect(r * lineW + 512, lineOffset, lineW, lineH, olc::Pixel(200, 150, 60, alphaV - kontrast));
 					//PaintTextures(r * wall.width + 512, wall.width, lineOffset, lineH, (*rayPoint).x, (*rayPoint).y, (*rayPoint).mapPos, alphaV, kontrast);
-					PaintTextures2(r * wall.width + rayCast/2, wall.width, lineOffset, lineH, newRay.x, newRay.y, newRay.mapPos, alphaV, kontrast);
+					//PaintTextures2(r * wall.width + rayCast/2, wall.width, lineOffset, lineH, newRay.x, newRay.y, newRay.mapPos, alphaV, kontrast);
+					PaintTextures3(r * wall.width + rayCast / 2, wall.width, lineOffset, lineH, newRay.x, newRay.y, newRay.mapPos, alphaV);
 					DrawLine(player.x, player.y, (*rayPoint).x, (*rayPoint).y, olc::DARK_RED);
 				}
 				list_rayPoints[i].list.clear();
@@ -619,14 +522,14 @@ class Example : public olc::PixelGameEngine
 	}
 
 	
-
+	/*
 	void GenerateTextures(string path,int size) 
 	{
 		olc::Sprite* sprpointer;
 		std::unique_ptr<olc::Sprite> sprTile;
 		sprTile = std::make_unique<olc::Sprite>(path);
 		olc::Pixel currentpixel;
-		size = size * size;
+
 		for (int c = 0; c < size; c++)
 		{
 			for (int r = 0; r < size; r++)
@@ -639,6 +542,7 @@ class Example : public olc::PixelGameEngine
 			}
 		}
 	}
+	*/
 	
 
 	
@@ -684,13 +588,68 @@ class Example : public olc::PixelGameEngine
 
 
 		//Aarray[3][64 * 64]
-
-
 		if (facing != 0) {
 			for (int i = 0; i < size; i++) {
 
 				int index = textur[map[1][mapPos] - 1][(i * size) + column];
+				
 				FillRect(lineX, lineOffset + (pixelHeight * i), lineWidth, pixelHeight + 2, olc::Pixel(Aarray[1][column * i], Aarray[2][column * i], Aarray[3][column * i], alphaV - kontrast));
+			}
+		}
+	}
+
+	void PaintTextures3(int lineX, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
+
+		int const size = 64;
+
+		int mapPosX = floor((mapPos - (mapPos / mapWidth) * mapWidth) * 32);
+		int mapPosY = floor((mapPos / mapHeight) * 32);
+		float textureX = rayPosX - mapPosX;
+		float textureY = rayPosY - mapPosY;
+		int facing = 0, column = 0;
+
+		olc::Sprite* sprpointer;
+		std::unique_ptr<olc::Sprite> sprTile;
+		sprTile = std::make_unique<olc::Sprite>("W3d_protoredbrick1.png");
+		olc::Pixel currentpixel;
+		int currentr;
+		int currentg;
+		int currentb;
+
+		if (rayPosY == mapPosY && rayPosX != mapPosX && rayPosX != mapPosX + mapS) //uppifrån id 1
+		{
+			facing = 1;
+			column = 1.00000 / (size * size) * (rayPosX - mapPosX) * size * (size * size / mapS);
+		}
+		else if (rayPosY == mapPosY + mapS && rayPosX != mapPosX + mapS && rayPosX != mapPosX) //nedifrån id 2
+		{
+			facing = 2;
+			column = 1.00000 / (size * size) * (mapS - (rayPosX - mapPosX)) * size * (size * size / mapS);
+		}
+		if (rayPosX == mapPosX && rayPosY != mapPosY && rayPosY != mapPosY + mapS) //höger id 3
+		{
+			facing = 3;
+			column = 1.00000 / (size * size) * (mapS - (rayPosY - mapPosY)) * size * (size * size / mapS);
+		}
+		else if (rayPosX == mapPosX + mapS && rayPosY != mapPosY + mapS && rayPosY != mapPosY) //Anta vänster id 4, alla övriga testade
+		{
+			facing = 4;
+			column = 1.00000 / (size * size) * (rayPosY - mapPosY) * size * (size * size / mapS);
+		}
+		if (column >= size) { column = size - 1; }
+
+		float pixelHeight = lineH / size;
+
+		if (facing != 0) {
+			for (int i = 0; i < size; i++) {
+
+				int index = textur[map[0][mapPos] - 1][(i * size) + column];
+				sprpointer = sprTile.get();
+				currentpixel = (*sprpointer).GetPixel(column, i);
+				currentr = currentpixel.r;
+				currentg = currentpixel.g;
+				currentb = currentpixel.b;
+				FillRect(lineX, lineOffset + (pixelHeight * i), 1, pixelHeight + 2, olc::Pixel(currentr, currentg, currentb, alphaV - kontrast));
 			}
 		}
 	}
@@ -760,7 +719,7 @@ public:
 		player.ySensitivity *= 2;
 		player.xSensitivity *= 0.5;
 
-		GenerateTextures("W3d_protoredbrick1.png", 64);
+		//GenerateTextures("W3d_protoredbrick1.png", 64);
 
 		return true;
 	}
