@@ -619,7 +619,7 @@ class Example : public olc::PixelGameEngine
 	}
 
 	
-/*
+
 	int** GenerateTextures(string path) 
 	{
 		olc::Sprite* sprpointer;
@@ -655,9 +655,9 @@ class Example : public olc::PixelGameEngine
 		}
 		return coulorArray;
 	}
-	*/
+	
 
-	/*m
+	
 	// lägg till lineWidth till painttexture2
 	void PaintTextures2(int lineX, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
 
@@ -710,7 +710,6 @@ class Example : public olc::PixelGameEngine
 			}
 		}
 	}
-	*/
 
 
 	void backgroundColor(olc::Pixel color) {
