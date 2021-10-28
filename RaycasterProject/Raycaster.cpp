@@ -348,7 +348,7 @@ class Example : public olc::PixelGameEngine
 		float rayAngle, xOffset, yOffset;
 		float tanOfFoW = tan(player.foW * DR / 2);
 
-		int rayCast = 4;
+		int rayCast = 60;
 		wall.width = ScreenWidth() / rayCast;
 
 		for (int r = 0; r < rayCast; r++)
@@ -472,7 +472,8 @@ class Example : public olc::PixelGameEngine
 
 					//FillRect(r * lineW + 512, lineOffset, lineW, lineH, olc::Pixel(200, 150, 60, alphaV - kontrast));
 					//PaintTextures(r * wall.width + 512, wall.width, lineOffset, lineH, (*rayPoint).x, (*rayPoint).y, (*rayPoint).mapPos, alphaV, kontrast);
-					PaintTextures2(r * wall.width + rayCast/2, wall.width, lineOffset, lineH, newRay.x, newRay.y, newRay.mapPos, alphaV, kontrast);
+					//PaintTextures2(r * wall.width + rayCast/2, wall.width, lineOffset, lineH, newRay.x, newRay.y, newRay.mapPos, alphaV, kontrast);
+					PaintTextures3(r * wall.width + rayCast / 2, wall.width, lineOffset, lineH, newRay.x, newRay.y, newRay.mapPos, alphaV);
 					DrawLine(player.x, player.y, (*rayPoint).x, (*rayPoint).y, olc::DARK_RED);
 				}
 				list_rayPoints[i].list.clear();
@@ -527,7 +528,7 @@ class Example : public olc::PixelGameEngine
 	}
 
 	
-
+	/*
 	void GenerateTextures(string path,int size) 
 	{
 		olc::Sprite* sprpointer;
@@ -598,6 +599,7 @@ class Example : public olc::PixelGameEngine
 
 
 
+		float pixelHeight = lineH / size;
 
 
 	}
@@ -667,7 +669,7 @@ public:
 		player.ySensitivity *= 2;
 		player.xSensitivity *= 0.5;
 
-		GenerateTextures("W3d_protoredbrick1.png", 64);
+		//GenerateTextures("W3d_protoredbrick1.png", 64);
 
 		return true;
 	}
