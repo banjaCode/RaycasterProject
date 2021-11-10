@@ -16,6 +16,8 @@
 
 using namespace std;
 
+std::unique_ptr<olc::Sprite> sprTile;
+
 struct Wall_Values
 {
 	float angle = 0;
@@ -82,133 +84,74 @@ class Example : public olc::PixelGameEngine
 	olc::vf2d pMouseCoordinates;
 	Player_Values player;
 	Wall_Values wall;
-
-
-
-	// [ Draw player on 2d map ]
-	void Drawplayer()
-	{
-		FillCircle(player.x, player.y, player.width/2, olc::YELLOW);
-		DrawLinePro(player.x, player.y, player.x + cos(player.angle) * 30, player.y + sin(player.angle) * 30 ,5,olc::DARK_GREEN);
-	}
-
-	rgb_color color[8] =
-	{
-		{191, 69, 43, "red"},
-		{224, 202, 22 , "yellow"},
-		{55, 216, 22 , "green"},
-		{22, 216, 203, "sky"},
-		{216, 22, 93 , "evning"},
-
-
-
-		{60, 58, 58, "dark_grey"},
-		{122, 122, 122, "light_grey"},
-	    {85, 81, 81, "grey"}
-	};
-	
-	int Aarray[3][64 * 64];
-	
-	int textur[3][16 * 16]
-	{
-		{
-            1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
-            0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
-			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
-            0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
-			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
-            0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
-			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
-            0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
-			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
-			0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
-			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
-			0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
-			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
-			0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
-			1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
-			0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,
-		},
-		{
-			1,3,5,3,2,3,1,4,5,3,4,2,4,2,4,2,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			0,0,0,0,0,0,0,0,0,4,4,4,4,4,4,4,
-			2,2,2,2,4,3,2,3,3,2,4,2,4,2,4,5,
-			2,2,2,2,4,3,2,3,3,2,4,2,4,2,4,5,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			1,3,5,3,2,3,1,4,5,3,4,2,4,2,4,2,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			4,3,4,2,4,2,5,3,5,3,4,2,4,2,2,0,
-			1,3,5,3,2,3,1,4,5,3,4,2,4,2,4,2,
-			1,3,5,3,2,3,1,4,5,3,4,2,4,2,4,2,
-			1,3,5,3,2,3,1,4,5,3,4,2,4,2,4,2,
-			2,2,2,2,4,3,2,3,3,2,4,2,4,2,4,5,
-			2,2,2,2,4,3,2,3,3,2,4,2,4,2,4,5,
-			2,2,2,2,4,3,2,3,3,2,4,2,4,2,4,5,
-		},
-		{ //id 3 CobledStone
-			6,6,6,7,6,6,6,6,6,7,6,6,6,7,6,6,
-			6,6,6,7,6,6,6,6,7,6,6,6,7,6,6,6,
-			6,6,6,7,7,6,6,6,7,6,6,6,7,5,6,6,
-			7,6,7,6,5,7,7,7,6,7,7,6,6,7,7,7,
-			6,7,6,6,6,7,6,6,6,6,7,7,7,6,6,6,
-			6,5,7,6,6,7,6,6,6,6,7,6,6,7,6,6,
-			6,6,7,6,6,6,7,7,7,7,6,6,6,6,7,6,
-			6,6,7,7,6,7,5,6,6,6,7,6,6,6,7,6,
-			6,7,6,6,7,7,6,6,6,6,7,7,6,6,7,6,
-			7,6,7,6,6,6,7,6,6,7,6,6,7,6,7,7,
-			6,6,7,6,6,6,7,7,7,6,6,6,6,7,5,6,
-			6,6,6,7,6,7,6,6,5,7,6,6,6,7,6,6,
-			7,7,5,7,7,7,6,6,6,6,7,7,7,6,6,6,
-			6,6,7,6,6,6,7,6,6,7,6,6,5,7,6,7,
-			6,6,7,6,6,6,6,7,7,7,6,6,6,6,7,6,
-			6,6,6,7,6,6,6,6,6,7,6,6,6,6,7,6,
-		}
-	};
-
-
-	// [ Map layout ]
-	/*
-	const static int mapWidth = 8, mapHeight = 8, mapS = 64;
-	int map[mapS] =
-	{
-		 1,1,1,1,2,1,1,1,
-		 2,0,2,0,0,0,0,2,
-		 1,0,1,0,0,0,0,1,
-		 1,0,0,0,2,0,1,2,
-		 1,0,1,0,2,0,0,2,
-		 2,0,0,0,0,0,0,1,
-		 1,0,1,0,0,0,0,2,
-		 1,1,1,2,1,3,3,1,
-	};
-	*/
 	
 	const static int mapS = 64 / 2;
 	const static int mapWidth = 16, mapHeight = 16, mapS2 = mapWidth * mapHeight;
-	const static int layers = 1;
+	const static int layers = 3;
 	int map[layers][mapS2] =
 	{
 		{
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		},
+		{
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		},
+		{
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+		0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		}
 	};
 
+	// [ Draw player on 2d map ]
+	void Drawplayer()
+	{
+		FillCircle(player.x, player.y, player.width / 2, olc::YELLOW);
+		DrawLinePro(player.x, player.y, player.x + cos(player.angle) * 30, player.y + sin(player.angle) * 30, 5, olc::DARK_GREEN);
+	}
 
 	// [ Draws 2D map ]
 	void DrawMap2D()
@@ -222,8 +165,8 @@ class Example : public olc::PixelGameEngine
 			{
 				if (map[0][y * mapWidth + x] > 0) { color = olc::WHITE; }
 				else { color = olc::BACK;; }
-				xo = x * mapS; yo = y * mapS;
-				FillRect(xo + 3, yo + 3, mapS - 3, mapS - 3, color);
+				xo = x * mapS ; yo = y * mapS;
+				FillRect(xo + 3, yo + 3, mapS - 3, mapS  - 3, color);
 			}
 		}
 	}
@@ -343,13 +286,14 @@ class Example : public olc::PixelGameEngine
 	// [ cast rays and draw 3D world ]
 	void DrawRays2D()
 	{
+
 		// dof = depth off field, changes how far the ray goes
 		int doF = 0, kontrast = 0, mapIn; 
 		float rayAngle, xOffset, yOffset;
 		float tanOfFoW = tan(player.foW * DR / 2);
 
-		int rayCast = 60;
-		wall.width = ScreenWidth() / rayCast;
+		int rayCast = 1024;
+		wall.width = (ScreenWidth() - 512) / rayCast;
 
 		for (int r = 0; r < rayCast; r++)
 		{
@@ -466,14 +410,13 @@ class Example : public olc::PixelGameEngine
 				{
 					//-- DRAW 3D WORLD --
 					float ca = player.angle - rayAngle; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } (*rayPoint).disT = (*rayPoint).disT * cos(ca);  // best�mmer distans till v�gg
-					float lineH = (mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / (*rayPoint).disT) * wall.width;                                 //Line Height (OBS: ändra * 64 ifall mapp ändras)
+					float lineH = (mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / (*rayPoint).disT) * wall.width / 2;  if (lineH > 10000) { lineH = 10000; }                             //Line Height (OBS: ändra * 64 ifall mapp ändras)
 					float lineOffset = wall.angle + lineH * (player.z + list_rayPoints[i].orderInZ);                                                                     //Line Offset
 					float alphaV = 255 / ((*rayPoint).disT * 0.0085 + 1);
 
-					//FillRect(r * lineW + 512, lineOffset, lineW, lineH, olc::Pixel(200, 150, 60, alphaV - kontrast));
-					//PaintTextures(r * wall.width + 512, wall.width, lineOffset, lineH, (*rayPoint).x, (*rayPoint).y, (*rayPoint).mapPos, alphaV, kontrast);
-					//PaintTextures2(r * wall.width + rayCast/2, wall.width, lineOffset, lineH, newRay.x, newRay.y, newRay.mapPos, alphaV, kontrast);
-					PaintTextures3(r * wall.width + rayCast / 2, wall.width, lineOffset, lineH, newRay.x, newRay.y, newRay.mapPos, alphaV);
+					//FillRect(r * wall.width + 512, lineOffset, wall.width, lineH, olc::Pixel(200, 150, 60, alphaV - kontrast));
+				    PaintTextures(r * wall.width + 512, wall.width, lineOffset, lineH, (*rayPoint).x, (*rayPoint).y, (*rayPoint).mapPos, alphaV, kontrast);
+					
 					DrawLine(player.x, player.y, (*rayPoint).x, (*rayPoint).y, olc::DARK_RED);
 				}
 				list_rayPoints[i].list.clear();
@@ -482,126 +425,40 @@ class Example : public olc::PixelGameEngine
     }
 	
 
-	void PaintTextures(int lineX, float lineWidth, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
+	void PaintTextures(int lineX, int lineWidth, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
 
-		int const size = 16;
-
-		int mapPosX = floor((mapPos - (mapPos / mapWidth) * mapWidth) * mapS);
-		int mapPosY = floor((mapPos / mapHeight) * mapS);
-		float textureX = rayPosX - mapPosX;
-		float textureY = rayPosY - mapPosY;
-		int facing = 0, column = 0;
+		float mapPosX = floor((mapPos - (mapPos / mapWidth) * mapWidth) * mapS);
+		float mapPosY = floor((mapPos / mapHeight) * mapS);
+		float facing = 0, column = 0;
 
 
 		if (rayPosY == mapPosY && rayPosX != mapPosX && rayPosX != mapPosX + mapS) //uppifrån id 1
 		{
 			facing = 1;
-			column = 1.00000 / (size * size) * (rayPosX - mapPosX) * size * (size * size / mapS);
+			column = (rayPosX - mapPosX) / mapS;
 		}
 		else if (rayPosY == mapPosY + mapS && rayPosX != mapPosX + mapS && rayPosX != mapPosX) //nedifrån id 2
 		{
 			facing = 2;
-			column = 1.00000 / (size * size) * (mapS - (rayPosX - mapPosX)) * size * (size * size / mapS);
+			column = (mapS - (rayPosX - mapPosX)) / mapS;
 		}
 		if (rayPosX == mapPosX && rayPosY != mapPosY && rayPosY != mapPosY + mapS) //höger id 3
 		{
 			facing = 3;
-			column = 1.00000 / (size * size) * (mapS - (rayPosY - mapPosY)) * size * (size * size / mapS);
+			column = (mapS - (rayPosY - mapPosY)) / mapS;
 		}
 		else if (rayPosX == mapPosX + mapS && rayPosY != mapPosY + mapS && rayPosY != mapPosY) //Anta vänster id 4, alla övriga testade
 		{
 			facing = 4;
-			column = 1.00000 / (size * size) * (rayPosY - mapPosY) * size * (size * size / mapS);
+			column = (rayPosY - mapPosY) / mapS;
 		}
-		if (column >= size) {  column = size - 1; }
-
-		float pixelHeight = lineH / size;
-
-		if (facing != 0) {
-			for (int i = 0; i < size; i++) {
-
-				int index = textur[map[3][mapPos] - 1][(i * size) + column];				
-
-				FillRect(lineX, lineOffset + (pixelHeight * i), lineWidth, pixelHeight + 1, olc::Pixel(color[index].r , color[index].g, color[index].b, alphaV - kontrast));
-			}
+			for (int i = 0; i < lineH; i++) {
+				if (lineOffset + i >= 0 && lineOffset + i <= ScreenHeight()) 
+				{
+					olc::Pixel myColor = sprTile->Sample(column, 1 / lineH * i);
+					Draw(lineX, lineOffset + i, olc::Pixel(myColor.r, myColor.g, myColor.b, 255));
+				}
 		}
-	}
-
-	
-	/*
-	void GenerateTextures(string path,int size) 
-	{
-		olc::Sprite* sprpointer;
-		std::unique_ptr<olc::Sprite> sprTile;
-		sprTile = std::make_unique<olc::Sprite>(path);
-		olc::Pixel currentpixel;
-		for (int c = 0; c < size; c++)
-		{
-			for (int r = 0; r < size; r++)
-			{
-				int arrPos = ((c * size) + r);
-				sprpointer = sprTile.get();
-				currentpixel = (*sprpointer).GetPixel(c, r);
-				Aarray[0][arrPos] = currentpixel.r;
-				Aarray[1][arrPos] = currentpixel.g;
-				Aarray[2][arrPos] = currentpixel.b;
-			}
-		}
-	}
-	
-
-	
-	void PaintTextures2(int lineX, int lineWidth, float lineOffset, float lineH, float rayPosX, float rayPosY, int mapPos, float alphaV, int kontrast) {
-
-		int const size = 16;
-
-		int mapPosX = floor((mapPos - (mapPos / mapWidth) * mapWidth) * mapS);
-		int mapPosY = floor((mapPos / mapHeight) * mapS);
-		float textureX = rayPosX - mapPosX;
-		float textureY = rayPosY - mapPosY;
-		int facing = 0, column = 0;
-
-
-		if (rayPosY == mapPosY && rayPosX != mapPosX && rayPosX != mapPosX + mapS) //uppifrån id 1
-		{
-			facing = 1;
-			column = 1.00000 / (size * size) * (rayPosX - mapPosX) * size * (size * size / mapS);
-		}
-		else if (rayPosY == mapPosY + mapS && rayPosX != mapPosX + mapS && rayPosX != mapPosX) //nedifrån id 2
-		{
-			facing = 2;
-			column = 1.00000 / (size * size) * (mapS - (rayPosX - mapPosX)) * size * (size * size / mapS);
-		}
-		if (rayPosX == mapPosX && rayPosY != mapPosY && rayPosY != mapPosY + mapS) //höger id 3
-		{
-			facing = 3;
-			column = 1.00000 / (size * size) * (mapS - (rayPosY - mapPosY)) * size * (size * size / mapS);
-		}
-		else if (rayPosX == mapPosX + mapS && rayPosY != mapPosY + mapS && rayPosY != mapPosY) //Anta vänster id 4, alla övriga testade
-		{
-			facing = 4;
-			column = 1.00000 / (size * size) * (rayPosY - mapPosY) * size * (size * size / mapS);
-		}
-		if (column >= size) { column = size - 1; }
-
-		float pixelHeight = lineH / size;
-
-		for (int i = 0; i < size; i++) {
-
-			showVariable = column;
-
-			int index = (i * size) + column;
-
-			showVariable = mapPos;
-			FillRect(lineX, lineOffset + (pixelHeight * i), lineWidth, pixelHeight + 2, olc::Pixel(Aarray[0][index], Aarray[1][index], Aarray[2][index], alphaV - kontrast));
-		}
-
-
-
-
-		float pixelHeight = lineH / size;
-
-
 	}
 	
 
@@ -609,7 +466,6 @@ class Example : public olc::PixelGameEngine
 	void backgroundColor(olc::Pixel color) {
 		FillRect(0, 0, ScreenWidth(), ScreenHeight(), color);
 	}
-
 
 	float Pyth(float ax, float ay, float bx, float by)  //pythagoras sats
 	{
@@ -654,11 +510,15 @@ public:
 		// Name your application
 		sAppName = "Raycaster";
 	}
+
+
 public:
 	bool OnUserCreate() override
 	{
+		sprTile = std::make_unique<olc::Sprite>("photo-1552288092-76e7d732366c.jpg");
+
 		backgroundColor(olc::DARK_GREY);
-		player.x = 288; player.y = 130; player.z = 0; player.width = 2;
+		player.x = 288; player.y = 130; player.z = 0; player.width = 1;
 		player.angle = PI2;
 		player.movement_speed = 100;
 		player.walk_animation_speed = 1;
@@ -669,8 +529,6 @@ public:
 		player.ySensitivity *= 2;
 		player.xSensitivity *= 0.5;
 
-		//GenerateTextures("W3d_protoredbrick1.png", 64);
-
 		return true;
 	}
 
@@ -679,18 +537,13 @@ public:
 	{
 		if (GetKey(olc::Key::ESCAPE).bPressed) { return false; }
 
-		if (GetKey(olc::Key::Q).bHeld)
-		{
-			cout << showVariable << "   ";
-		}
-
 		backgroundColor(olc::DARK_BLUE);
-		FillRect(0, 0, 512, 512 ,olc::Pixel (255 ,255 ,255 ,100));
+		FillRect(0, 0, 512, ScreenHeight(), olc::Pixel(255, 255, 255, 100));
 		DrawMap2D();
-		DrawRays2D();
 		DrawRays2D();
 		Drawplayer();
 		buttons();
+	    
 		return true;
 	}
 };
@@ -698,7 +551,7 @@ public:
 int main()
 {
 	Example demo;
-	if (demo.Construct(512 * 3, 512 * 4, 1, 1))
+	if (demo.Construct(512 * 3, 512 * 2 , 1, 1, true))
 		demo.Start();
 	return 0;
 }

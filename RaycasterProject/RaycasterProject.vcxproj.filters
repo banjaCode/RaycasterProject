@@ -33,5 +33,23 @@
     <Image Include="..\..\RaycasterProject\RaycasterProject\W3d_protoredbrick1.png">
       <Filter>Source Files</Filter>
     </Image>
+    <Image Include="lava-texture-seamless-for-games-2031.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="download.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="depositphotos_51857765-stock-photo-nebula-arrangement.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="d1mlhn9-4dbb7696-d333-44aa-a760-2989cc647bd8.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="photo-1552288092-76e7d732366c.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
