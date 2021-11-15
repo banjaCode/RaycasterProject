@@ -87,7 +87,7 @@ class Example : public olc::PixelGameEngine
 	
 	const static int mapS = 64 / 2;
 	const static int mapWidth = 16, mapHeight = 16, mapS2 = mapWidth * mapHeight;
-	const static int layers = 3;
+	const static int layers = 1;
 	int map[layers][mapS2] =
 	{
 		{
@@ -108,42 +108,6 @@ class Example : public olc::PixelGameEngine
 		0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		},
-		{
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		},
-		{
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
-		0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		}
 	};
 
 	// [ Draw player on 2d map ]
@@ -410,7 +374,7 @@ class Example : public olc::PixelGameEngine
 				{
 					//-- DRAW 3D WORLD --
 					float ca = player.angle - rayAngle; if (ca < 0) { ca += 2 * PI; } if (ca > 2 * PI) { ca -= 2 * PI; } (*rayPoint).disT = (*rayPoint).disT * cos(ca);  // best�mmer distans till v�gg
-					float lineH = (mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / (*rayPoint).disT) * wall.width / 2;  if (lineH > 10000) { lineH = 10000; }                             //Line Height (OBS: ändra * 64 ifall mapp ändras)
+					float lineH = (mapS * (mapS / ((tan(player.foW / 2 * DR) * mapS) / (rayCast / 2))) / (*rayPoint).disT) * wall.width;  if (lineH > 10000) { lineH = 10000; }                             //Line Height (OBS: ändra * 64 ifall mapp ändras)
 					float lineOffset = wall.angle + lineH * (player.z + list_rayPoints[i].orderInZ);                                                                     //Line Offset
 					float alphaV = 255 / ((*rayPoint).disT * 0.0085 + 1);
 
@@ -548,8 +512,11 @@ public:
 	}
 };
 
+
+
 int main()
 {
+
 	Example demo;
 	if (demo.Construct(512 * 3, 512 * 2 , 1, 1, true))
 		demo.Start();
